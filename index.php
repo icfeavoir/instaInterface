@@ -1,3 +1,10 @@
+<?php
+	session_start();
+	if(!empty($_COOKIE)){
+		header('Location: postConnection.php');
+	}
+?>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -24,7 +31,7 @@
 					<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
 					<input id="password" type="password" class="form-control" name="password" placeholder="Password">
 				</div>
-				<br/>
+				<!-- <br/> -->
 				<input type="submit" value="Connect!" class="btn btn-md btn-success" />
     		</form>
     	</div>
