@@ -7,6 +7,13 @@ CREATE TABLE IF NOT EXISTS `User` (
 	`password` text NOT NULL,
 	`rights` int NOT NULL DEFAULT 0
 );
+CREATE TABLE IF NOT EXISTS `Account` (
+	`ID` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	`user_id` int NOT NULL,
+	`email` text NOT NULL,
+	`password` text NOT NULL,
+	`status` int NOT NULL DEFAULT 0
+);
 
 -- External employee: 1<<0
 -- Youpic employee: 1<<1

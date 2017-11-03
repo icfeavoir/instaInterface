@@ -13,6 +13,10 @@
     $statement = $db->prepare('SELECT * FROM User WHERE email=:email LIMIT 1');
 	$statement->execute(array(':email'=>$email));
 	$user = $statement->fetch(PDO::FETCH_ASSOC);
+
+	$_SESSION['ID'] = $user['ID'];
+	setcookie('ID', $user['ID'], time()+30*24*3600);
+
 	if($statement->rowCount() == 0){
 		echo "wrong email";
 	}else if(!password_verify($password, $user['password'])){

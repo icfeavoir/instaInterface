@@ -15,19 +15,19 @@
 
     <body class="text-center">
 		<div class="alert alert-info text-center">
-			<strong>Add an account</strong>
+			<strong>Add an Instagram account</strong>
 		</div>
 
-		<form class="col-lg-6 col-lg-offset-3" action="action.php?action=saveAccount&user=<?php echo $user['ID']; ?>" method="POST">
+		<form action="action.php?action=saveAccount" method="POST">
 			<div class="input-group">
 				<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-				<input id="email" type="text" class="form-control" name="email" placeholder="Email">
+				<input required id="email" type="text" class="form-control" name="email" placeholder="Email">
 			</div>
 			<div class="input-group">
 				<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-				<input id="password" type="password" class="form-control" name="password" placeholder="Password">
+				<input required id="password" type="password" class="form-control" name="password" placeholder="Password">
 			</div>
-			<!-- <br/> -->
+			<br/>
 			<input type="submit" value="Add!" class="btn btn-md btn-success" />
 		</form>
     </body>
