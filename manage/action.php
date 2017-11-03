@@ -15,4 +15,9 @@
 			$statement->execute(array(':email'=>$_POST['email'], ':password'=>$_POST['password'], ':user_id'=>$_SESSION['ID']));
 		}
 		header('Location: index.php');
+	}else if($action == 'logout'){
+		session_destroy();
+		setcookie('ID', 0, time()+10000, null, null, false, true);
+		// header('Location: /');
+		print_r($_COOKIE['ID']);
 	}

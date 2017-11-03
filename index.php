@@ -1,7 +1,11 @@
 <?php
 	session_start();
-	if(!empty($_COOKIE)){
-		header('Location: postConnection.php');
+	if(!empty($_COOKIE) && isset($_COOKIE['ID']) && $_COOKIE['ID'] > 0){
+		foreach ($_COOKIE as $key => $value) {
+			$_SESSION[$key] = $value;
+		}
+		print_r($_COOKIE);
+		// header('Location: postConnection.php'); COOKIE ID NOT SET TO 0 :()
 	}
 ?>
 

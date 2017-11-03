@@ -2,7 +2,7 @@
 	session_start();
 	$user = $_SESSION;
 	if(empty($_SESSION) || empty($_COOKIE)){
-		header('Location: ~/');
+		header('Location: /');
 	}
 	require_once('../db.php');
 ?>
@@ -20,13 +20,16 @@
   			.openModal:hover{
   				cursor: pointer;
   			}
+  			th{
+  				text-align: center;
+  			}
   		</style>
     </head>
 
     <body class="text-center">
     	<div class="ajax-response"><p class=""></p></div>
 		<div class="alert alert-info text-center">
-			<strong>Welcome <?php echo $user['email']; ?>!</strong> Here are your accounts and some stats about it!
+			<strong>Welcome <?php echo $user['email']; ?>!</strong> Here are your accounts and some stats about it! <a href="action.php?action=logout"><button class="btn btn-warning btn-md">Logout</button></a>
 		</div>
 		<button class="btn btn-lg btn-success" id="newAccount">Add an account</button>
 		<br/><br/>
@@ -48,11 +51,11 @@
 				foreach ($accounts as $account) {
 					?>
 						<tr>
-							<th><?php echo $account['email'] ?></th>
-							<th><?php echo $status[$account['status']] ?></th>
-							<th><a class="openModal" id="plus"><i class="fa fa-plus"></i></a></th>
-							<th><a class="openModal" id="editAccount"><i class="fa fa-pencil"></i></a></th>
-							<th><a class="openModal" id="delete"><i class="fa fa-trash"></i></a></th>
+							<td><?php echo $account['email'] ?></td>
+							<td><?php echo $status[$account['status']] ?></td>
+							<td><a class="openModal" id="plus"><i class="fa fa-plus"></i></a></td>
+							<td><a class="openModal" id="editAccount"><i class="fa fa-pencil"></i></a></td>
+							<td><a class="openModal" id="delete"><i class="fa fa-trash"></i></a></td>
 						</tr>
 					<?php
 				}
@@ -86,7 +89,6 @@ $(document).ready(function(){
 	}
 
 	function openModal(file, data={}){
-		console.log(file);
 		$.post( file+".php?account=", data).done(function( resp ){
 			$('#modal .modal-content .modal-title').html($(resp).filter('title').text());
 			$('#modal .modal-content .modal-body').html(resp);
@@ -99,7 +101,7 @@ $(document).ready(function(){
 	});
 
 	$('.openModal').click(function(){
-		
+
 	});
 
 });

@@ -4,7 +4,7 @@
 
     foreach ($_POST as $key => $value) {
 		$_SESSION[$key] = $value;
-		setcookie($key, $value, time()+30*24*3600);
+		setcookie($key, $value, time()+30*24*3600, null, null, false, true);
 	}
 
     $email = $_POST['email'] ?? $_COOKIE['email'] ?? "";
@@ -15,7 +15,7 @@
 	$user = $statement->fetch(PDO::FETCH_ASSOC);
 
 	$_SESSION['ID'] = $user['ID'];
-	setcookie('ID', $user['ID'], time()+30*24*3600);
+	setcookie('ID', $user['ID'], time()+30*24*3600, null, null, false, true);
 
 	if($statement->rowCount() == 0){
 		echo "wrong email";
