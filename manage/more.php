@@ -50,28 +50,40 @@
 	    		url: 'action.php?action=getStats',
 	    		data: {'accountID': getUrlParameter('accountID')},
 	    		success: function(resp){
-	    			stats = JSON.parse(resp)
+	    			stats = JSON.parse(resp);
+	    			console.log(stats);
 	    		},
 	    		async: false
 	     	});
-	    	console.log(stats);
-			var data = google.visualization.arrayToDataTable([
-				['Day', 'Number of messages sent', 'Number of messages received'],
-				['2013',  1000,      400],
-				['2014',  1170,      460],
-				['2015',  660,       1120],
-				['2016',  1030,      540]
-			]);
+
+	     	var dataArray = [['Day', 'Number of messages sent', 'Number of messages received']];
+	     	var msgSent = [], msgReceived = [], unique = [];
+	     	stats.sent.forEach(function(elem){
+	     		msgSent.push(elem.date);
+	     		if(unique.indexOf(elem.date) == -1){
+	     			unique.push(elem.date);
+	     		}
+	     	});
+	     	stats.received.forEach(function(elem){
+	     		msgReceived.push(elem.date);
+	     		if(unique.indexOf(elem.date) == -1){
+	     			unique.push(elem.date);
+	     		}
+	     	});
+
+	     	unique.forEach(function(elem){
+	     		dataArray.push([elem, msgSent.reduce(function(n, val) {return n + (val === elem); }, 0), msgReceived.reduce(function(n, val) {return n + (val === elem); }, 0)]);
+	     	})
+			var data = google.visualization.arrayToDataTable(dataArray);
 
 			var options = {
 				title: 'Messages',
 				hAxis: {title: 'Day',  titleTextStyle: {color: '#333'}},
 				vAxis: {minValue: 0}
 			};
-
-			var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+			var chart = new google.visualization.AreaChart(document.getElementById('msg'));
 			chart.draw(data, options);
-           }
+        }
 	    </script>
 
   		<!--Load the AJAX API-->
@@ -103,6 +115,6 @@
 			<strong>More about this account: <?php echo $email; ?></strong>
 		</div>
 
-		<div id="chart_div" style="width: 100%; height: 500px;"></div>
+		<div id="msg" style="width: 100%; height: 500px;"></div>
     </body>
 </html>

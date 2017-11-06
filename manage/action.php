@@ -31,12 +31,12 @@
 	}else if($action == 'getStats'){
 		$json = array();
 		if(isset($_POST['accountID'])){
-			$statement = $db->prepare('SELECT COUNT(*) AS nb FROM Account WHERE ID=:accountID');
+			$statement = $db->prepare('SELECT DATE(FROM_UNIXTIME(timestamp/1000000)) as date FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id=:accountID) AND response=false ORDER BY timestamp');
 			$statement->execute(array(':accountID'=>$_POST['accountID']));
-			$json['sent'] = $statement->fetch()['nb'];
-			$statement = $db->prepare('SELECT COUNT(*) AS nb FROM Account WHERE ID=:accountID');
+			$json['sent'] = $statement->fetchAll(PDO::FETCH_ASSOC);
+			$statement = $db->prepare('SELECT DATE(FROM_UNIXTIME(timestamp/1000000)) as date FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id=:accountID) AND response=true ORDER BY timestamp');
 			$statement->execute(array(':accountID'=>$_POST['accountID']));
-			$json['received'] = $statement->fetch()['nb'];
+			$json['received'] = $statement->fetchAll(PDO::FETCH_ASSOC);
 		}
 		echo json_encode($json);
 	}
@@ -60,17 +60,6 @@
 			$statement = $db->prepare('DELETE FROM User WHERE ID=:ID LIMIT 1');
 			$statement->execute(array(':ID'=>$_POST['ID']));
 		}
-	}else if($action == 'getStats'){
-		$json = array();
-		if(isset($_POST['accountID'])){
-			$statement = $db->prepare('SELECT COUNT(*) AS nb FROM Account WHERE ID=:accountID');
-			$statement->execute(array(':accountID'=>$_POST['accountID']));
-			$json['sent'] = $statement->fetch()['nb'];
-			$statement = $db->prepare('SELECT COUNT(*) AS nb FROM Account WHERE ID=:accountID');
-			$statement->execute(array(':accountID'=>$_POST['accountID']));
-			$json['received'] = $statement->fetch()['nb'];
-		}
-		echo json_encode($json);
 	}
 
 	else if($action == 'logout'){
