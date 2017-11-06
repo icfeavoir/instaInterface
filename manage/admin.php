@@ -72,9 +72,18 @@
 							<td><?php echo $nbAccounts; ?></td>
 							<td><?php echo 0; ?></td>
 							<td><?php echo 0; ?></td>
-							<td><a href="user.php?userID=<?php echo $user['ID']; ?>"><i class="fa fa-plus"></i></a></td>
+							<td><a class="openModal" user=<?php echo $user['ID']; ?> id="more"><i class="fa fa-plus"></i></a></td>
 							<td><a class="openModal" user=<?php echo $user['ID']; ?> id="edit"><i class="fa fa-pencil"></i></a></td>
-							<td><a class="openModal" user=<?php echo $user['ID']; ?> id="delete"><i class="fa fa-trash"></i></a></td>
+							<td>
+								<?php
+								if($user['ID'] == $_SESSION['ID']){
+								?>
+									<a class="openModal" user=<?php echo $user['ID']; ?> id="delete"><i class="fa fa-trash"></i></a>
+								<?php
+								}else{
+									echo 'YOU';
+								}?>
+							</td>
 						</tr>
 					<?php
 				}
@@ -99,7 +108,14 @@
 						<tr>
 							<td><?php echo $user['email']; ?></td>
 							<td><a class="openModal" user=<?php echo $user['ID']; ?> id="edit"><i class="fa fa-pencil"></i></a></td>
-							<td><a class="openModal" user=<?php echo $user['ID']; ?> id="delete"><i class="fa fa-trash"></i></a></td>
+							<td>
+								<?php
+								if($user['ID'] == $_SESSION['ID']){
+									echo 'You';
+								}else{?>
+									<a class="openModal" user=<?php echo $user['ID']; ?> id="delete"><i class="fa fa-trash"></i></a>
+								<?php } ?>
+							</td>
 						</tr>
 					<?php
 				}
@@ -124,13 +140,6 @@
 
 <script>
 $(document).ready(function(){
-	function showBar(isSuccess, msg){
-		$('.ajax-response').css('visibility','visible').css('opacity', 1);
-		$('.ajax-response p').html('<i class="fa fa-'+(isSuccess?"check":"exclamation-triangle")+'" aria-hidden="true"></i> '+msg);
-		$('.ajax-response p').addClass(isSuccess?'alert-success':'alert-danger').removeClass(!isSuccess?'alert-success':'alert-danger');
-		setTimeout(function(){$('.ajax-response').css('visibility','hidden').css('opacity', 0)}, 4000);
-	}
-
 	function openModal(file, data={}, sync=true){
 		$.ajax({
 			type: 'POST',
@@ -145,6 +154,10 @@ $(document).ready(function(){
 		});
 	}
 
+	$('#modal').on('hidden.bs.modal', function () {
+		location.reload();
+	})
+
 	$('#newAccount').click(function(){
 		openModal('addUser');
 	});
@@ -152,6 +165,9 @@ $(document).ready(function(){
 	$('.openModal').click(function(){
 		var user = $(this).attr('user');
 		switch($(this).attr("id")){
+			case "more":
+				openModal('user', {'userID': user});
+				break;
 			case "edit":
 				openModal('addUser', {'userID': user});
 				break;
@@ -187,7 +203,7 @@ $(document).ready(function(){
 	function sortTable(n) {
 		var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
 		table = document.getElementById("externalTable");
-			switching = true;
+		switching = true;
 		//Set the sorting direction to ascending:
 		dir = "asc"; 
 		/*Make a loop that will continue until
@@ -213,29 +229,29 @@ $(document).ready(function(){
 			          	shouldSwitch= true;
 			          	break;
 			      	}
-		  } else if (dir == "desc") {
-		  	if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-		          //if so, mark as a switch and break the loop:
-		          shouldSwitch= true;
-		          break;
-		      }
-		  }
-		}
-		if (shouldSwitch) {
-		      /*If a switch has been marked, make the switch
-		      and mark that a switch has been done:*/
-		      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-		      switching = true;
-		      //Each time a switch is done, increase this count by 1:
-		      switchcount ++;      
-		  } else {
-		      /*If no switching has been done AND the direction is "asc",
-		      set the direction to "desc" and run the while loop again.*/
-		      if (switchcount == 0 && dir == "asc") {
-		      	dir = "desc";
-		      	switching = true;
-		      }
-		  }
+		  		} else if (dir == "desc") {
+		  			if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+		          		//if so, mark as a switch and break the loop:
+		          		shouldSwitch= true;
+		          		break;
+		      		}
+		  		}
+			}
+			if (shouldSwitch) {
+				/*If a switch has been marked, make the switch
+				and mark that a switch has been done:*/
+				rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+				switching = true;
+				//Each time a switch is done, increase this count by 1:
+				switchcount ++;      
+			} else {
+				/*If no switching has been done AND the direction is "asc",
+				set the direction to "desc" and run the while loop again.*/
+				if (switchcount == 0 && dir == "asc") {
+					dir = "desc";
+					switching = true;
+	      		}
+			}
 		}
 	}
 });

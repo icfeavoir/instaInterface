@@ -10,15 +10,14 @@
 			$_SESSION[$key] = $value;
 		}
 	}
-	if(!isset($_SESSION['ID']) || $_SESSION['ID'] == 0 || !($_SESSION['rights']&1))
+	if(!isset($_SESSION['ID']) || $_SESSION['ID'] == 0 || !$_SESSION['ID']&2)
 		header('Location: /index.php');
-
 ?>
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>Instagram</title>
+        <title>User's account(s)</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -39,25 +38,24 @@
     </head>
 
     <body class="text-center">
-		<div class="alert alert-info text-center">
-			<strong>Welcome <?php echo $_SESSION['email']; ?>!</strong> Here are your accounts and some stats about it! <a href="action.php?action=logout"><button class="btn btn-warning btn-md">Logout</button></a>
-		</div>
-		<button class="btn btn-lg btn-success" id="newAccount">Add an account</button>
-		<br/><br/>
+    	<?php
+    		if(!isset($_POST['userID'])){
+    			echo('<div class="alert alert-danger text-center">Error: no user selected</div>');
+	    		exit;
+    		}
+    	?>
 
 		<table class="table table-striped table-hover" id="accountsTable">
 			<tr>
 				<th>Email</th>
 				<th>Status</th>
 				<th>More</th>
-				<th>Update</th>
-				<th>Delete</th>
 			</tr>
 			<?php
-				$status = array('Nothing wrong!', 'The account has been blocked: <button id="unblock" class="btn btn-danger btn-sm">What should I do?</button>');
+				$status = array('Nothing wrong!', 'The account has been blocked: <button id="unblock" class="btn btn-danger btn-sm">What should the user do?</button>');
 
 				$accounts = $db->prepare('SELECT * FROM Account WHERE user_id=:user_id');
-				$accounts->execute(array(':user_id'=>$_SESSION['ID']));
+				$accounts->execute(array(':user_id'=>$_POST['userID']));
 				$accounts = $accounts->fetchAll();
 				foreach ($accounts as $account) {
 					?>
@@ -65,14 +63,15 @@
 							<td><?php echo $account['email'] ?></td>
 							<td><?php echo $status[$account['status']] ?></td>
 							<td><a href="more.php?accountID=<?php echo $account['ID']; ?>"><i class="fa fa-plus"></i></a></td>
-							<td><a class="openModal" account=<?php echo $account['ID']; ?> id="edit"><i class="fa fa-pencil"></i></a></td>
-							<td><a class="openModal" account=<?php echo $account['ID']; ?> id="delete"><i class="fa fa-trash"></i></a></td>
 						</tr>
 					<?php
 				}
 			?>
 		</table>
-
+		<?php
+		if(sizeof($accounts) == 0)
+			echo '<div class="alert alert-info">This user hasn\'t any accounts yet.</div>';
+		?>
 		<!-- Modal -->
 		<div class="modal fade" id="modal" role="dialog">
 			<div class="modal-dialog modal-lg">
@@ -91,55 +90,6 @@
 
 <script>
 $(document).ready(function(){
-	function openModal(file, data={}, sync=true){
-		$.ajax({
-			type: 'POST',
-			url: file+".php?account=",
-			data: data,
-			success: function( resp ){
-				$('#modal .modal-content .modal-title').html($(resp).filter('title').text());
-				$('#modal .modal-content .modal-body').html(resp);
-				$('#modal').modal();
-			},
-			async: sync,	// synchronous for google charts
-		});
-	}
-
-	$('#newAccount').click(function(){
-		openModal('addAccount');
-	});
-
-	$('.openModal').click(function(){
-		var account = $(this).attr('account');
-		switch($(this).attr("id")){
-			case "edit":
-				openModal('addAccount', {'accountID': account});
-				break;
-			case "delete":
-				var line = $(this).closest('tr');
-				bootbox.confirm({
-				    message: "Are you sure you want to delete this account?",
-				    buttons: {
-				        confirm: {
-				            label: 'Yes',
-				            className: 'btn-success'
-				        },
-				        cancel: {
-				            label: 'No',
-				            className: 'btn-danger'
-				        }
-				    },
-				    callback: function (result) {
-				    	if(result){
-				    		$.post('action.php?action=deleteAccount', {'ID': account});
-				    		line.remove();
-				    	}
-				    }
-				});
-				break;
-		}
-	});
-
 	$('#accountsTable th').each(function(i){
 		$(this).click(function(){sortTable(i)});
 	});
@@ -198,12 +148,12 @@ $(document).ready(function(){
 			}
 		}
 	}
+
 	$('#unblock').click(function(){
 		bootbox.alert({
-		    message: "You should connect to this Instagram account, and check the <i>I'm not a robot</i> field.",
+		    message: "The account's owner should connect to this Instagram account, and check the <i>I'm not a robot</i> field.",
 		    backdrop: true
 		});
 	})
-
 });
 </script>

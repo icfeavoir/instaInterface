@@ -46,7 +46,7 @@
 	if($action == 'saveUser'){
 		if(isset($_POST['email']) && isset($_POST['password']) && $_POST['email'] != "" && $_POST['password'] != ""){
 			$statement = $db->prepare('INSERT INTO User (email, password, rights) VALUES(:email, :password, :rights)');
-			$statement->execute(array(':email'=>$_POST['email'], ':password'=>$_POST['password'], ':rights'=>$_POST['rights']));
+			$statement->execute(array(':email'=>$_POST['email'], ':password'=>password_hash($_POST['password'], PASSWORD_DEFAULT), ':rights'=>$_POST['rights']));
 		}
 		header('Location: admin.php');
 	}else if($action == 'editUser'){

@@ -80,7 +80,7 @@
     </head>
 
     <body class="text-center">
-    	<a href="index.php"><button class="btn btn-lg btn-primary"><i class="fa fa-arrow-left"></i> Go Back</button></a><br/><br/>
+    	<a href=<?php echo $_SESSION['rights']&1 ? 'index.php' : 'admin.php'; ?>><button class="btn btn-md btn-primary"><i class="fa fa-arrow-left"></i> Go Back</button></a><br/><br/>
     	<?php
 	    	if(isset($_GET['accountID'])){
 	    		$account = $db->prepare('SELECT * FROM Account WHERE ID=:id');
@@ -90,7 +90,7 @@
 	    			exit;
 	    		}
 	    		$account = $account->fetch();
-	    		if($account['user_id'] != $_SESSION['ID']){
+	    		if($account['user_id'] != $_SESSION['ID'] && !($_SESSION['rights']&2)){	// if your account or ADMIN
 	    			echo('<div class="alert alert-danger text-center">Not your account!</div>');
 	    			exit;
 	    		}
