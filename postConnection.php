@@ -7,8 +7,8 @@
 		setcookie($key, $value, time()+30*24*3600, null, null, false, true);
 	}
 
-    $email = $_POST['email'] ?? $_COOKIE['email'] ?? "";
-    $password = $_POST['password'] ?? $_COOKIE['password'] ?? "";
+    $email = $_POST['email'] ?? $_SESSION['email'] ?? "";
+    $password = $_POST['password'] ?? $_SESSION['password'] ?? "";
 
     $statement = $db->prepare('SELECT * FROM User WHERE email=:email LIMIT 1');
 	$statement->execute(array(':email'=>$email));

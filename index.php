@@ -4,8 +4,7 @@
 		foreach ($_COOKIE as $key => $value) {
 			$_SESSION[$key] = $value;
 		}
-		print_r($_COOKIE);
-		// header('Location: postConnection.php'); COOKIE ID NOT SET TO 0 :()
+		header('Location: postConnection.php');
 	}
 ?>
 

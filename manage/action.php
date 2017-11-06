@@ -15,9 +15,21 @@
 			$statement->execute(array(':email'=>$_POST['email'], ':password'=>$_POST['password'], ':user_id'=>$_SESSION['ID']));
 		}
 		header('Location: index.php');
-	}else if($action == 'logout'){
+	}else if($action == 'editAccount'){
+		if(isset($_GET['ID']) && isset($_POST['email']) && isset($_POST['password']) && $_POST['email'] != "" && $_POST['password'] != ""){
+			$statement = $db->prepare('UPDATE Account SET email=:email, password=:password WHERE ID=:ID LIMIT 1');
+			$statement->execute(array(':email'=>$_POST['email'], ':password'=>$_POST['password'], ':ID'=>$_GET['ID']));
+		}
+		header('Location: index.php');
+	}else if($action == 'deleteAccount'){
+		if(isset($_POST['ID'])){
+			$statement = $db->prepare('DELETE FROM Account WHERE ID=:ID LIMIT 1');
+			$statement->execute(array(':ID'=>$_POST['ID']));
+		}
+	}
+
+	else if($action == 'logout'){
 		session_destroy();
-		setcookie('ID', 0, time()+10000, null, null, false, true);
-		// header('Location: /');
-		print_r($_COOKIE['ID']);
+		setcookie('ID', 0, time()+30*24*3600, '/', null, false, true);
+		header('Location: /');
 	}

@@ -1,9 +1,13 @@
 <?php
 	session_start();
-	$user = $_SESSION;
-	if(empty($_SESSION) || empty($_COOKIE)){
-		header('Location: /');
+	if(empty($_SESSION)){
+		foreach ($_COOKIE as $key => $value) {
+			$_SESSION[$key] = $value;
+		}
 	}
+	if(!isset($_SESSION['ID']) || $_SESSION['ID'] == 0)
+		header('Location: /index.php');
+
 	require_once('../db.php');
 ?>
 <!DOCTYPE html>
@@ -15,6 +19,7 @@
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  		<script src="bootbox.min.js"></script>
 
   		<style>
   			.openModal:hover{
@@ -27,9 +32,8 @@
     </head>
 
     <body class="text-center">
-    	<div class="ajax-response"><p class=""></p></div>
 		<div class="alert alert-info text-center">
-			<strong>Welcome <?php echo $user['email']; ?>!</strong> Here are your accounts and some stats about it! <a href="action.php?action=logout"><button class="btn btn-warning btn-md">Logout</button></a>
+			<strong>Welcome <?php echo $_SESSION['email']; ?>!</strong> Here are your accounts and some stats about it! <a href="action.php?action=logout"><button class="btn btn-warning btn-md">Logout</button></a>
 		</div>
 		<button class="btn btn-lg btn-success" id="newAccount">Add an account</button>
 		<br/><br/>
@@ -46,16 +50,16 @@
 				$status = array('Nothing wrong!', 'The account has been blocked: <button id="unblock" class="btn btn-danger btn-sm">What should I do?</button>');
 
 				$accounts = $db->prepare('SELECT * FROM Account WHERE user_id=:user_id');
-				$accounts->execute(array(':user_id'=>$user['ID']));
+				$accounts->execute(array(':user_id'=>$_SESSION['ID']));
 				$accounts = $accounts->fetchAll();
 				foreach ($accounts as $account) {
 					?>
 						<tr>
 							<td><?php echo $account['email'] ?></td>
 							<td><?php echo $status[$account['status']] ?></td>
-							<td><a class="openModal" id="plus"><i class="fa fa-plus"></i></a></td>
-							<td><a class="openModal" id="editAccount"><i class="fa fa-pencil"></i></a></td>
-							<td><a class="openModal" id="delete"><i class="fa fa-trash"></i></a></td>
+							<td><a class="openModal" account=<?php echo $account['ID']; ?> id="plus"><i class="fa fa-plus"></i></a></td>
+							<td><a class="openModal" account=<?php echo $account['ID']; ?> id="edit"><i class="fa fa-pencil"></i></a></td>
+							<td><a class="openModal" account=<?php echo $account['ID']; ?> id="delete"><i class="fa fa-trash"></i></a></td>
 						</tr>
 					<?php
 				}
@@ -80,7 +84,6 @@
 
 <script>
 $(document).ready(function(){
-	console.log("o");
 	function showBar(isSuccess, msg){
 		$('.ajax-response').css('visibility','visible').css('opacity', 1);
 		$('.ajax-response p').html('<i class="fa fa-'+(isSuccess?"check":"exclamation-triangle")+'" aria-hidden="true"></i> '+msg);
@@ -101,7 +104,37 @@ $(document).ready(function(){
 	});
 
 	$('.openModal').click(function(){
-
+		var account = $(this).attr('account');
+		switch($(this).attr("id")){
+			case "plus":
+				openModal('more', {'accountID': account});
+				break;
+			case "edit":
+				openModal('addAccount', {'accountID': account});
+				break;
+			case "delete":
+				var line = $(this).closest('tr');
+				bootbox.confirm({
+				    message: "Are you sure you want to delete this account?",
+				    buttons: {
+				        confirm: {
+				            label: 'Yes',
+				            className: 'btn-success'
+				        },
+				        cancel: {
+				            label: 'No',
+				            className: 'btn-danger'
+				        }
+				    },
+				    callback: function (result) {
+				    	if(result){
+				    		$.post('action.php?action=deleteAccount', {'ID': account});
+				    		line.remove();
+				    	}
+				    }
+				});
+				break;
+		}
 	});
 
 });
