@@ -11,7 +11,7 @@
 		}
 	}
 	if(!isset($_SESSION['ID']) || $_SESSION['ID'] == 0 || !($_SESSION['rights']&2))
-		header('Location: /index.php');
+		header('Location: '.PATH.'/index.php');
 
 ?>
 <!DOCTYPE html>
