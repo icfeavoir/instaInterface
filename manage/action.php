@@ -75,6 +75,6 @@
 
 	else if($action == 'logout'){
 		session_destroy();
-		setcookie('ID', 0, time()+30*24*3600, '/', null, false, true);
+		setcookie('ID', 0, time()+30*24*3600, PATH, null, false, true);
 		header('Location: '.PATH);
 	}

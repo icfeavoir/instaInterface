@@ -11,11 +11,11 @@
 
 	foreach ($user as $key => $value) {
 		$_SESSION[$key] = $value;
-		setcookie($key, $value, time()+30*24*3600, null, null, false, true);
+		setcookie($key, $value, time()+30*24*3600, PATH, null, false, true);
 	}
 
 	// the password not hashed
-	setcookie('password', $password, time()+30*24*3600, null, null, false, true);
+	setcookie('password', $password, time()+30*24*3600, PATH, null, false, true);
 
 	if($statement->rowCount() == 0){
 		header('Location: index.php?err=0');
