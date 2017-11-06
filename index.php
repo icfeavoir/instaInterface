@@ -1,6 +1,6 @@
 <?php
 	session_start();
-	if(!empty($_COOKIE) && isset($_COOKIE['ID']) && $_COOKIE['ID'] > 0){
+	if(!isset($_GET['err']) && !empty($_COOKIE) && isset($_COOKIE['ID']) && $_COOKIE['ID'] > 0){
 		foreach ($_COOKIE as $key => $value) {
 			$_SESSION[$key] = $value;
 		}
@@ -38,6 +38,12 @@
 				<input type="submit" value="Connect!" class="btn btn-md btn-success" />
     		</form>
     	</div>
-    
+    	<div class="col-lg-12 text-center">
+	    	<?php
+	    		$err = array('Wrong email.', 'Wrong password');
+	    		echo isset($_GET['err']) ? '<div class="alert alert-danger">'.$err[intval($_GET['err'])].'</div>' : '';
+	    	?>
+	    </div>
+
     </body>
 </html>

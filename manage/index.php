@@ -1,14 +1,18 @@
 <?php
 	session_start();
+	require_once('../db.php');
+
 	if(empty($_SESSION)){
-		foreach ($_COOKIE as $key => $value) {
+		$accounts = $db->prepare('SELECT * FROM User WHERE user_id=:user_id');
+		$accounts->execute(array(':user_id'=>$_COOKIE['ID']));
+		$accounts = $accounts->fetchAll(PDO::FETCH_ASSOC);
+		foreach ($accounts as $key => $value) {
 			$_SESSION[$key] = $value;
 		}
 	}
-	if(!isset($_SESSION['ID']) || $_SESSION['ID'] == 0)
+	if(!isset($_SESSION['ID']) || $_SESSION['ID'] == 0 || !($_SESSION['rights']&1))
 		header('Location: /index.php');
 
-	require_once('../db.php');
 ?>
 <!DOCTYPE html>
 <html>
@@ -57,7 +61,7 @@
 						<tr>
 							<td><?php echo $account['email'] ?></td>
 							<td><?php echo $status[$account['status']] ?></td>
-							<td><a class="openModal" account=<?php echo $account['ID']; ?> id="plus"><i class="fa fa-plus"></i></a></td>
+							<td><a href="more.php?accountID=<?php echo $account['ID']; ?>"><i class="fa fa-plus"></i></a></td>
 							<td><a class="openModal" account=<?php echo $account['ID']; ?> id="edit"><i class="fa fa-pencil"></i></a></td>
 							<td><a class="openModal" account=<?php echo $account['ID']; ?> id="delete"><i class="fa fa-trash"></i></a></td>
 						</tr>
@@ -91,11 +95,17 @@ $(document).ready(function(){
 		setTimeout(function(){$('.ajax-response').css('visibility','hidden').css('opacity', 0)}, 4000);
 	}
 
-	function openModal(file, data={}){
-		$.post( file+".php?account=", data).done(function( resp ){
-			$('#modal .modal-content .modal-title').html($(resp).filter('title').text());
-			$('#modal .modal-content .modal-body').html(resp);
-			$('#modal').modal();
+	function openModal(file, data={}, sync=true){
+		$.ajax({
+			type: 'POST',
+			url: file+".php?account=",
+			data: data,
+			success: function( resp ){
+				$('#modal .modal-content .modal-title').html($(resp).filter('title').text());
+				$('#modal .modal-content .modal-body').html(resp);
+				$('#modal').modal();
+			},
+			async: sync,	// synchronous for google charts
 		});
 	}
 
@@ -106,9 +116,6 @@ $(document).ready(function(){
 	$('.openModal').click(function(){
 		var account = $(this).attr('account');
 		switch($(this).attr("id")){
-			case "plus":
-				openModal('more', {'accountID': account});
-				break;
 			case "edit":
 				openModal('addAccount', {'accountID': account});
 				break;
