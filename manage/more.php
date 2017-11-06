@@ -1,14 +1,13 @@
 <?php
 	session_start();
+	require_once('../db.php');
 	if(empty($_SESSION)){
 		foreach ($_COOKIE as $key => $value) {
 			$_SESSION[$key] = $value;
 		}
 	}
 	if(!isset($_SESSION['ID']) || $_SESSION['ID'] == 0)
-		header('Location: /index.php');
-
-	require_once('../db.php');
+		header('Location: '.PATH.'/index.php');	
 ?>
 <!DOCTYPE html>
 <html>
@@ -80,7 +79,7 @@
     </head>
 
     <body class="text-center">
-    	<a href=<?php echo $_SESSION['rights']&1 ? 'index.php' : 'admin.php'; ?>><button class="btn btn-md btn-primary"><i class="fa fa-arrow-left"></i> Go Back</button></a><br/><br/>
+    	<a href=<?php echo PATH.'manage/'.($_SESSION['rights']&1?'index.php':'admin.php'); ?>><button class="btn btn-md btn-primary"><i class="fa fa-arrow-left"></i> Go Back</button></a><br/><br/>
     	<?php
 	    	if(isset($_GET['accountID'])){
 	    		$account = $db->prepare('SELECT * FROM Account WHERE ID=:id');

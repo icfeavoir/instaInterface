@@ -8,3 +8,5 @@
     }catch(Exception $e){
     	exit('Error: '.$e);
     };
+
+    define('PATH', '/');
