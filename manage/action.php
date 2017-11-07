@@ -51,10 +51,10 @@
 		header('Location: admin.php');
 	}else if($action == 'editUser'){
 		if(isset($_GET['ID']) && isset($_POST['email']) && isset($_POST['password']) && $_POST['email'] != "" && $_POST['password'] != ""){
-			$statement = $db->prepare('UPDATE User SET email=:email, password=:password WHERE ID=:ID LIMIT 1');
-			$statement->execute(array(':email'=>$_POST['email'], ':password'=>$_POST['password'], ':ID'=>$_GET['ID']));
+			$statement = $db->prepare('UPDATE User SET email=:email, password=:password, rights=:rights WHERE ID=:ID LIMIT 1');
+			$statement->execute(array(':email'=>$_POST['email'], ':password'=>password_hash($_POST['password'], PASSWORD_DEFAULT), ':rights'=>$_POST['rights'], ':ID'=>$_GET['ID']));
 		}
-		header('Location: index.php');
+		header('Location: admin.php');
 	}else if($action == 'deleteUser'){
 		if(isset($_POST['ID'])){
 			$statement = $db->prepare('DELETE FROM User WHERE ID=:ID LIMIT 1');

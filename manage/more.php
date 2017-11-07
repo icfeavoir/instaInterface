@@ -7,7 +7,7 @@
 		}
 	}
 	if(!isset($_SESSION['ID']) || $_SESSION['ID'] == 0)
-		header('Location: '.PATH.'/index.php');	
+		header('Location: '.PATH.'index.php');	
 ?>
 <!DOCTYPE html>
 <html>

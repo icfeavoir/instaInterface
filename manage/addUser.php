@@ -11,7 +11,7 @@
 		}
 	}
 	if(!isset($_SESSION['ID']) || $_SESSION['ID'] == 0 || !$_SESSION['ID']&2)
-		header('Location: '.PATH.'/index.php');
+		header('Location: '.PATH.'index.php');
 ?>
 <!DOCTYPE html>
 <html>
@@ -35,7 +35,7 @@
     			$account = array();
     		}
     		$email = $account['email'] ?? '';
-    		$password = $account['password'] ?? '';
+    		$rights = $account['rights'] ?? 0;
     	?>
 		<div class="alert alert-info text-center">
 			<strong><?php echo (isset($_POST['userID']) ? 'Edit' : 'Add'); ?> an User</strong>
@@ -48,13 +48,13 @@
 			</div>
 			<div class="input-group">
 				<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-				<input required id="password" type="text" class="form-control" name="password" placeholder="Password" value="<?php echo $password; ?>">
+				<input required id="password" type="text" class="form-control" name="password" placeholder="Password">
 			</div><br/>
 			<div class="form-group">
 	      		<div class="col-sm-4">
 	        		<select class="form-control" name="rights">
-	          			<option value="1">External</option>
-	          			<option value="2">Internal (works at YouPic)</option>
+	          			<option <?php echo $rights==1?'selected':''; ?> value="1">External</option>
+	          			<option <?php echo $rights==2?'selected':''; ?> value="2">Internal (works at YouPic)</option>
 	        		</select>
 	      		</div>
 	    	</div>

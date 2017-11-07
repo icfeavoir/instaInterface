@@ -11,7 +11,7 @@
 		}
 	}
 	if(!isset($_SESSION['ID']) || $_SESSION['ID'] == 0 || !($_SESSION['rights']&2))
-		header('Location: '.PATH.'/index.php');
+		header('Location: '.PATH.'index.php');
 
 ?>
 <!DOCTYPE html>
@@ -42,14 +42,16 @@
 
     <body class="text-center">
 		<div class="alert alert-info text-center">
-			<strong>Welcome <?php echo $_SESSION['email']; ?>!</strong> As an admin you can add users and chat on Instagram! <a href="action.php?action=logout"><button class="btn btn-warning btn-md">Logout</button></a>
+			<strong>Welcome <?php echo $_SESSION['email']; ?>!</strong> As an admin you can add users and see some stats! <a href="action.php?action=logout"><button class="btn btn-warning btn-md">Logout</button></a>
 		</div>
 		<button class="btn btn-lg btn-success" id="newAccount">Add an user</button>
 		<br/><br/>
 
-		<div id="users_stats"></div><hr/>
+		<div class="col-lg-12 text-center">
+			<div id="users_stats"></div>
+		</div>
 
-		<div class="alert alert-info text-center">
+		<div class="alert alert-info text-center col-sm-12">
 			External Users
 		</div>
 		<table class="table table-striped table-hover" id="externalTable">
@@ -85,7 +87,7 @@
 			?>
 		</table>
 		
-		<div class="alert alert-info text-center">
+		<div class="alert alert-info text-center col-sm-12">
 			Internal Users
 		</div>
 		<table class="table table-striped table-hover">
@@ -153,7 +155,7 @@ $(document).ready(function(){
 	}
 
 	$('#modal').on('hidden.bs.modal', function () {
-		location.reload();
+		// location.reload();
 	})
 
 	$('#newAccount').click(function(){
@@ -222,7 +224,7 @@ $(document).ready(function(){
 			var options = {
 				title: '',
 				hAxis: {
-					title: 'Users',
+					title: '',
 				},
 				vAxis: {
 					title: ''
