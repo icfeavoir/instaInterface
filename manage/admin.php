@@ -3,8 +3,8 @@
 	require_once('../db.php');
 
 	if(empty($_SESSION)){
-		$accounts = $db->prepare('SELECT * FROM User WHERE user_id=:user_id');
-		$accounts->execute(array(':user_id'=>$_COOKIE['ID']));
+		$accounts = $db->prepare('SELECT * FROM instagram.User WHERE instaface_id=:instaface_id');
+		$accounts->execute(array(':instaface_id'=>$_COOKIE['ID']));
 		$accounts = $accounts->fetchAll(PDO::FETCH_ASSOC);
 		foreach ($accounts as $key => $value) {
 			$_SESSION[$key] = $value;
@@ -65,22 +65,22 @@
 				<th>Delete</th>
 			</tr>
 			<?php
-				$users = $db->prepare('SELECT * FROM User WHERE rights=1 ORDER BY ID DESC');
+				$users = $db->prepare('SELECT * FROM instagram.User WHERE rights=1 ORDER BY instaface_id DESC');
 				$users->execute();
 				$users = $users->fetchAll();
 				foreach ($users as $user) {
-					$accounts = $db->prepare('SELECT COUNT(ID) as nb FROM Account WHERE user_id=:user_id');
-					$accounts->execute(array(':user_id'=>$user['ID']));
+					$accounts = $db->prepare('SELECT COUNT(*) as nb FROM scraping2.Account WHERE instaface_id=:instaface_id');
+					$accounts->execute(array(':instaface_id'=>$user['instaface_id']));
 					$nbAccounts = $accounts->fetch()['nb'];
 					?>
 						<tr>
 							<td class="userEmail"><?php echo $user['email']; ?></td>
 							<td><?php echo $nbAccounts; ?></td>
-							<td class="msgSent" id="<?php echo $user['ID']; ?>"><?php echo 0; ?></td>
-							<td class="msgReceived" id="<?php echo $user['ID']; ?>"><?php echo 0; ?></td>
-							<td><a class="openModal" user=<?php echo $user['ID']; ?> id="more"><i class="fa fa-plus"></i></a></td>
-							<td><a class="openModal" user=<?php echo $user['ID']; ?> id="edit"><i class="fa fa-pencil"></i></a></td>
-							<td><a class="openModal" user=<?php echo $user['ID']; ?> id="delete"><i class="fa fa-trash"></i></a>
+							<td class="msgSent" id="<?php echo $user['instaface_id']; ?>"><?php echo 0; ?></td>
+							<td class="msgReceived" id="<?php echo $user['instaface_id']; ?>"><?php echo 0; ?></td>
+							<td><a class="openModal" user=<?php echo $user['instaface_id']; ?> id="more"><i class="fa fa-plus"></i></a></td>
+							<td><a class="openModal" user=<?php echo $user['instaface_id']; ?> id="edit"><i class="fa fa-pencil"></i></a></td>
+							<td><a class="openModal" user=<?php echo $user['instaface_id']; ?> id="delete"><i class="fa fa-trash"></i></a>
 						</tr>
 					<?php
 				}
@@ -97,20 +97,20 @@
 				<th>Delete</th>
 			</tr>
 			<?php
-				$users = $db->prepare('SELECT * FROM User WHERE rights=2 ORDER BY ID DESC');
+				$users = $db->prepare('SELECT * FROM instagram.User WHERE rights=2 ORDER BY instaface_id DESC');
 				$users->execute();
 				$users = $users->fetchAll();
 				foreach ($users as $user) {
 					?>
 						<tr>
 							<td><?php echo $user['email']; ?></td>
-							<td><a class="openModal" user=<?php echo $user['ID']; ?> id="edit"><i class="fa fa-pencil"></i></a></td>
+							<td><a class="openModal" user=<?php echo $user['instaface_id']; ?> id="edit"><i class="fa fa-pencil"></i></a></td>
 							<td>
 								<?php
-								if($user['ID'] == $_SESSION['ID']){
+								if($user['instaface_id'] == $_SESSION['ID']){
 									echo 'You';
 								}else{?>
-									<a class="openModal" user=<?php echo $user['ID']; ?> id="delete"><i class="fa fa-trash"></i></a>
+									<a class="openModal" user=<?php echo $user['instaface_id']; ?> id="delete"><i class="fa fa-trash"></i></a>
 								<?php } ?>
 							</td>
 						</tr>
@@ -206,6 +206,8 @@ $(document).ready(function(){
 				data: {userID: $(this).attr("id")},
 				success: function( resp ){
 					resp = JSON.parse(resp);
+					resp.sent = resp.sent || 0;
+					resp.received = resp.received || 0;
 					it.text(resp.sent);
 					it.next().text(resp.received);
 					graphData.push([it.closest("tr").find(".userEmail").text(), parseInt(resp.sent), parseInt(resp.received)]);

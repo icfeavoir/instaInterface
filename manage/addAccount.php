@@ -3,8 +3,8 @@
 	require_once('../db.php');
 
 	if(empty($_SESSION)){
-		$accounts = $db->prepare('SELECT * FROM User WHERE user_id=:user_id');
-		$accounts->execute(array(':user_id'=>$_COOKIE['ID']));
+		$accounts = $db->prepare('SELECT * FROM instagram.User WHERE instaface_id=:instaface_id');
+		$accounts->execute(array(':instaface_id'=>$_COOKIE['ID']));
 		$accounts = $accounts->fetchAll(PDO::FETCH_ASSOC);
 		foreach ($accounts as $key => $value) {
 			$_SESSION[$key] = $value;
@@ -28,13 +28,13 @@
     	<?php
     		// edit or add
     		if(isset($_POST['accountID'])){
-    			$account = $db->prepare('SELECT * FROM Account WHERE ID=:id');
+    			$account = $db->prepare('SELECT * FROM scraping2.Account WHERE account_id=:id');
     			$account->execute(array(':id'=>$_POST['accountID']));
     			$account = $account->fetch();
     		}else{
     			$account = array();
     		}
-    		$email = $account['email'] ?? '';
+    		$username = $account['username'] ?? '';
     		$password = $account['password'] ?? '';
     	?>
 		<div class="alert alert-info text-center">
@@ -44,7 +44,7 @@
 		<form action="action.php?action=<?php echo (isset($_POST['accountID']) ? 'editAccount&ID='.$_POST['accountID'] : 'saveAccount'); ?>" method="POST">
 			<div class="input-group">
 				<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-				<input required id="email" type="text" class="form-control" name="email" placeholder="Email" value="<?php echo $email; ?>">
+				<input required id="username" type="text" class="form-control" name="username" placeholder="Username" value="<?php echo $username; ?>">
 			</div>
 			<div class="input-group">
 				<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>

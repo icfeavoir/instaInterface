@@ -94,14 +94,14 @@
     	<a href=<?php echo PATH.'manage/'.($_SESSION['rights']&1?'index.php':'admin.php'); ?>><button class="btn btn-md btn-primary"><i class="fa fa-arrow-left"></i> Go Back</button></a><br/><br/>
     	<?php
 	    	if(isset($_GET['accountID'])){
-	    		$account = $db->prepare('SELECT * FROM Account WHERE ID=:id');
+	    		$account = $db->prepare('SELECT * FROM scraping2.Account WHERE account_id=:id');
 	    		$account->execute(array(':id'=>$_GET['accountID']));
 	    		if($account->rowCount() == 0){
 	    			echo('<div class="alert alert-danger text-center">Error: this account doesn\'t exist</div>');
 	    			exit;
 	    		}
 	    		$account = $account->fetch();
-	    		if($account['user_id'] != $_SESSION['ID'] && !($_SESSION['rights']&2)){	// if your account or ADMIN
+	    		if($account['instaface_id'] != $_SESSION['ID'] && !($_SESSION['rights']&2)){	// if your account or ADMIN
 	    			echo('<div class="alert alert-danger text-center">Not your account!</div>');
 	    			exit;
 	    		}
@@ -109,10 +109,10 @@
 	    		echo('<div class="alert alert-danger text-center">Error: no account selected</div>');
 	    		exit;
 	    	}
-	    	$email = $account['email'] ?? '';
+	    	$username = $account['username'] ?? '';
     	?>
 		<div class="alert alert-info text-center">
-			<strong>More about this account: <?php echo $email; ?></strong>
+			<strong>More about this account: <?php echo $username; ?></strong>
 		</div>
 
 		<div id="msg" style="width: 100%; height: 500px;"></div>

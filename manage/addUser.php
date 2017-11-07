@@ -3,8 +3,8 @@
 	require_once('../db.php');
 
 	if(empty($_SESSION)){
-		$accounts = $db->prepare('SELECT * FROM User WHERE user_id=:user_id');
-		$accounts->execute(array(':user_id'=>$_COOKIE['ID']));
+		$accounts = $db->prepare('SELECT * FROM instagram.User WHERE instaface_id=:instaface_id');
+		$accounts->execute(array(':instaface_id'=>$_COOKIE['ID']));
 		$accounts = $accounts->fetchAll(PDO::FETCH_ASSOC);
 		foreach ($accounts as $key => $value) {
 			$_SESSION[$key] = $value;
@@ -28,7 +28,7 @@
     	<?php
     		// edit or add
     		if(isset($_POST['userID'])){
-    			$account = $db->prepare('SELECT * FROM User WHERE ID=:id');
+    			$account = $db->prepare('SELECT * FROM instagram.User WHERE instaface_id=:id');
     			$account->execute(array(':id'=>$_POST['userID']));
     			$account = $account->fetch();
     		}else{

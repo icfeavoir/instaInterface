@@ -3,8 +3,8 @@
 	require_once('../db.php');
 
 	if(empty($_SESSION)){
-		$accounts = $db->prepare('SELECT * FROM User WHERE user_id=:user_id');
-		$accounts->execute(array(':user_id'=>$_COOKIE['ID']));
+		$accounts = $db->prepare('SELECT * FROM instagram.User WHERE instaface_id=:instaface_id');
+		$accounts->execute(array(':instaface_id'=>$_COOKIE['ID']));
 		$accounts = $accounts->fetchAll(PDO::FETCH_ASSOC);
 		foreach ($accounts as $key => $value) {
 			$_SESSION[$key] = $value;
@@ -47,22 +47,22 @@
 
 		<table class="table table-striped table-hover" id="accountsTable">
 			<tr>
-				<th>Email</th>
+				<th>Username</th>
 				<th>Status</th>
 				<th>More</th>
 			</tr>
 			<?php
 				$status = array('Nothing wrong!', 'The account has been blocked: <button id="unblock" class="btn btn-danger btn-sm">What should the user do?</button>');
 
-				$accounts = $db->prepare('SELECT * FROM Account WHERE user_id=:user_id');
-				$accounts->execute(array(':user_id'=>$_POST['userID']));
+				$accounts = $db->prepare('SELECT * FROM scraping2.Account WHERE instaface_id=:instaface_id');
+				$accounts->execute(array(':instaface_id'=>$_POST['userID']));
 				$accounts = $accounts->fetchAll();
 				foreach ($accounts as $account) {
 					?>
 						<tr>
-							<td><?php echo $account['email'] ?></td>
+							<td><?php echo $account['username'] ?></td>
 							<td><?php echo $status[$account['status']] ?></td>
-							<td><a href="more.php?accountID=<?php echo $account['ID']; ?>"><i class="fa fa-plus"></i></a></td>
+							<td><a href="more.php?accountID=<?php echo $account['account_id']; ?>"><i class="fa fa-plus"></i></a></td>
 						</tr>
 					<?php
 				}
