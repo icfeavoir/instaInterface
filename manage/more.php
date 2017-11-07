@@ -51,7 +51,6 @@
 	    		data: {'accountID': getUrlParameter('accountID')},
 	    		success: function(resp){
 	    			stats = JSON.parse(resp);
-	    			console.log(stats);
 	    		},
 	    		async: false
 	     	});

@@ -20,7 +20,7 @@
 			$statement = $db->prepare('INSERT INTO scraping2.Account (account_id, username, password, instaface_id, read_inbox, send_messages) VALUES(:newID, :username, :password, :instaface_id, true, true)');
 			$statement->execute(array(':newID'=>$lastID+1, ':username'=>$_POST['username'], ':password'=>$_POST['password'], ':instaface_id'=>$_SESSION['ID']));
 		}
-		// header('Location: index.php');
+		header('Location: index.php');
 	}else if($action == 'editAccount'){
 		if(isset($_GET['ID']) && isset($_POST['username']) && isset($_POST['password']) && $_POST['username'] != "" && $_POST['password'] != ""){
 			$statement = $db->prepare('UPDATE scraping2.Account SET username=:username, password=:password WHERE account_id=:ID LIMIT 1');
