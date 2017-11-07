@@ -13,9 +13,12 @@
 
 	if($action == 'saveAccount'){
 		if(isset($_POST['username']) && isset($_POST['password']) && $_POST['username'] != "" && $_POST['password'] != ""){
-			print_r($_SESSION['ID']);
-			$statement = $db->prepare('INSERT INTO scraping2.Account (username, password, instaface_id, read_inbox, send_messages) VALUES(:username, :password, :instaface_id, true, true)');
-			$statement->execute(array(':username'=>$_POST['username'], ':password'=>$_POST['password'], ':instaface_id'=>$_SESSION['ID']));
+			// no auto increment...
+			$lastID = $db->prepare('SELECT account_id FROM scraping2.Account ORDER BY account_id DESC LIMIT 1');
+			$lastID->execute();
+			$lastID = $lastID->fetch()['account_id'];
+			$statement = $db->prepare('INSERT INTO scraping2.Account (account_id, username, password, instaface_id, read_inbox, send_messages) VALUES(:newID, :username, :password, :instaface_id, true, true)');
+			$statement->execute(array(':newID'=>$lastID+1, ':username'=>$_POST['username'], ':password'=>$_POST['password'], ':instaface_id'=>$_SESSION['ID']));
 		}
 		// header('Location: index.php');
 	}else if($action == 'editAccount'){
