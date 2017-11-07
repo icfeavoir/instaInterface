@@ -60,6 +60,17 @@
 			$statement = $db->prepare('DELETE FROM User WHERE ID=:ID LIMIT 1');
 			$statement->execute(array(':ID'=>$_POST['ID']));
 		}
+	}else if($action == 'getTotalNumbers'){
+		$json = array();
+		if(isset($_POST['userID'])){
+			$statement = $db->prepare('SELECT COUNT(*) AS nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE user_id=:userID) AND response=false');
+			$statement->execute(array(':userID'=>$_POST['userID']));
+			$json['sent'] = $statement->fetch(PDO::FETCH_ASSOC)['nb'];
+			$statement = $db->prepare('SELECT COUNT(*) AS nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE user_id=:userID) AND response=true');
+			$statement->execute(array(':userID'=>$_POST['userID']));
+			$json['received'] = $statement->fetch(PDO::FETCH_ASSOC)['nb'];
+		}
+		echo json_encode($json);
 	}
 
 	else if($action == 'logout'){

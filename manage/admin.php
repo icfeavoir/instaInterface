@@ -25,6 +25,8 @@
   		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   		<script src="bootbox.min.js"></script>
 
+  		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
   		<style>
   			.openModal:hover{
   				cursor: pointer;
@@ -44,6 +46,8 @@
 		</div>
 		<button class="btn btn-lg btn-success" id="newAccount">Add an user</button>
 		<br/><br/>
+
+		<div id="users_stats"></div><hr/>
 
 		<div class="alert alert-info text-center">
 			External Users
@@ -68,22 +72,13 @@
 					$nbAccounts = $accounts->fetch()['nb'];
 					?>
 						<tr>
-							<td><?php echo $user['email']; ?></td>
+							<td class="userEmail"><?php echo $user['email']; ?></td>
 							<td><?php echo $nbAccounts; ?></td>
-							<td><?php echo 0; ?></td>
-							<td><?php echo 0; ?></td>
+							<td class="msgSent" id="<?php echo $user['ID']; ?>"><?php echo 0; ?></td>
+							<td class="msgReceived" id="<?php echo $user['ID']; ?>"><?php echo 0; ?></td>
 							<td><a class="openModal" user=<?php echo $user['ID']; ?> id="more"><i class="fa fa-plus"></i></a></td>
 							<td><a class="openModal" user=<?php echo $user['ID']; ?> id="edit"><i class="fa fa-pencil"></i></a></td>
-							<td>
-								<?php
-								if($user['ID'] == $_SESSION['ID']){
-								?>
-									<a class="openModal" user=<?php echo $user['ID']; ?> id="delete"><i class="fa fa-trash"></i></a>
-								<?php
-								}else{
-									echo 'YOU';
-								}?>
-							</td>
+							<td><a class="openModal" user=<?php echo $user['ID']; ?> id="delete"><i class="fa fa-trash"></i></a>
 						</tr>
 					<?php
 				}
@@ -140,6 +135,9 @@
 
 <script>
 $(document).ready(function(){
+	google.charts.load('current', {packages: ['corechart', 'bar']});
+	google.charts.setOnLoadCallback(function(){drawGraph()});
+
 	function openModal(file, data={}, sync=true){
 		$.ajax({
 			type: 'POST',
@@ -195,6 +193,45 @@ $(document).ready(function(){
 				break;
 		}
 	});
+
+	function drawGraph(){
+		var graphData = [];
+		$('td.msgSent').each(function(i){	// get all users and fill the table
+			var it = $(this);
+			$.ajax({
+				type: 'POST',
+				url: "action.php?action=getTotalNumbers",
+				data: {userID: $(this).attr("id")},
+				success: function( resp ){
+					resp = JSON.parse(resp);
+					it.text(resp.sent);
+					it.next().text(resp.received);
+					graphData.push([it.closest("tr").find(".userEmail").text(), parseInt(resp.sent), parseInt(resp.received)]);
+				},
+				async: false,
+			});
+		});
+
+		var data = new google.visualization.DataTable();
+			data.addColumn('string', 'User');
+			data.addColumn('number', 'Messages sent');
+			data.addColumn('number', 'Messages received');
+
+			data.addRows(graphData);
+
+			var options = {
+				title: '',
+				hAxis: {
+					title: 'Users',
+				},
+				vAxis: {
+					title: ''
+				}
+			};
+
+			var materialChart = new google.charts.Bar(document.getElementById('users_stats'));
+			materialChart.draw(data, options);
+	}
 
 	$('#externalTable th').each(function(i){
 		$(this).click(function(){sortTable(i)});
