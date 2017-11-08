@@ -49,21 +49,28 @@
 			<tr>
 				<th>Username</th>
 				<th>Status</th>
+				<th>Messages sent</th>
+				<th>Messages received</th>
 				<th>More</th>
 				<th>Update</th>
 				<th>Delete</th>
 			</tr>
 			<?php
-				$status = array('Nothing wrong!', 'The account has been blocked: <button id="unblock" class="btn btn-danger btn-sm">What should I do?</button>');
+				$status = array('Everything is fine!', 'The account has been blocked: <button id="unblock" class="btn btn-danger btn-sm">What should I do?</button>');
 
 				$accounts = $db->prepare('SELECT * FROM scraping2.Account WHERE instaface_id=:instaface_id');
 				$accounts->execute(array(':instaface_id'=>$_SESSION['ID']));
 				$accounts = $accounts->fetchAll();
+
 				foreach ($accounts as $account) {
+					$sent = $db->query('SELECT COUNT(*) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=false')->fetch()['nb'];
+					$received = $db->query('SELECT COUNT(*) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=true')->fetch()['nb'];
 					?>
 						<tr>
 							<td><?php echo $account['username'] ?></td>
 							<td><?php echo $status[$account['status']] ?></td>
+							<td><?php echo $sent ?></td>
+							<td><?php echo $received ?></td>
 							<td><a href="more.php?accountID=<?php echo $account['account_id']; ?>"><i class="fa fa-plus"></i></a></td>
 							<td><a class="openModal" account=<?php echo $account['account_id']; ?> id="edit"><i class="fa fa-pencil"></i></a></td>
 							<td><a class="openModal" account=<?php echo $account['account_id']; ?> id="delete"><i class="fa fa-trash"></i></a></td>

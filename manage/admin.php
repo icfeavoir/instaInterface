@@ -128,7 +128,7 @@
 						<button type="button" class="close" data-dismiss="modal">&times;</button>
 						<h4 class="modal-title"></h4>
 					</div>
-					<div class="modal-body"></div>
+					<div class="modal-body">Please wait...</div>
 				</div>
 			</div>
 		</div>
@@ -141,6 +141,7 @@ $(document).ready(function(){
 	google.charts.setOnLoadCallback(function(){drawGraph()});
 
 	function openModal(file, data={}, sync=true){
+		$('#modal').modal();
 		$.ajax({
 			type: 'POST',
 			url: file+".php",
@@ -148,7 +149,6 @@ $(document).ready(function(){
 			success: function( resp ){
 				$('#modal .modal-content .modal-title').html($(resp).filter('title').text());
 				$('#modal .modal-content .modal-body').html(resp);
-				$('#modal').modal();
 			},
 			async: sync,	// synchronous for google charts
 		});
@@ -265,16 +265,30 @@ $(document).ready(function(){
 				/*check if the two rows should switch place,
 				based on the direction, asc or desc:*/
 		      	if (dir == "asc") {
-			      	if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-			        	  //if so, mark as a switch and break the loop:
-			          	shouldSwitch= true;
-			          	break;
-			      	}
+		      		if(Number.isInteger(parseInt(x.innerHTML))){
+		      			if(parseInt(x.innerHTML) > parseInt(y.innerHTML)){
+		      				shouldSwitch = true;
+		      				break;
+		      			}
+		      		}else{
+		      			if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+				        	  //if so, mark as a switch and break the loop:
+				          	shouldSwitch= true;
+				          	break;
+				      	}
+		      		}
 		  		} else if (dir == "desc") {
-		  			if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-		          		//if so, mark as a switch and break the loop:
-		          		shouldSwitch= true;
-		          		break;
+		  			if(Number.isInteger(parseInt(x.innerHTML))){
+						if(parseInt(x.innerHTML) < parseInt(y.innerHTML)){
+		      				shouldSwitch = true;
+		      				break;
+		      			}
+		      		}else{
+			  			if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+			          		//if so, mark as a switch and break the loop:
+			          		shouldSwitch= true;
+			          		break;
+			      		}
 		      		}
 		  		}
 			}
