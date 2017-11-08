@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT sele) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=false;

@@ -32,7 +32,7 @@
   			th{
   				text-align: center;
   			}
-  			#accountsTable th:hover{
+  			#accountsTable, #othersAccountsTable th:hover{
   				cursor: pointer;
   			}
   		</style>
@@ -45,13 +45,14 @@
 		<button class="btn btn-lg btn-success" id="newAccount">Add an account</button>
 		<br/><br/>
 
+		<div class="alert alert-info text-center">Your account(s)</div>
 		<table class="table table-striped table-hover" id="accountsTable">
 			<tr>
 				<th>Username</th>
 				<th>Status</th>
-				<th>Messages sent</th>
-				<th>Messages received</th>
-				<th>More</th>
+				<th>Conversation started</th>
+				<th>Conversation with at least 1 reply</th>
+				<th>% of reply</th>
 				<th>Update</th>
 				<th>Delete</th>
 			</tr>
@@ -63,17 +64,51 @@
 				$accounts = $accounts->fetchAll();
 
 				foreach ($accounts as $account) {
-					$sent = $db->query('SELECT COUNT(*) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=false')->fetch()['nb'];
-					$received = $db->query('SELECT COUNT(*) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=true')->fetch()['nb'];
+					$started = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=false')->fetch()['nb'];
+					$replied = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=true')->fetch()['nb'];
 					?>
 						<tr>
 							<td><?php echo $account['username'] ?></td>
 							<td><?php echo $status[$account['status']] ?></td>
-							<td><?php echo $sent ?></td>
-							<td><?php echo $received ?></td>
-							<td><a href="more.php?accountID=<?php echo $account['account_id']; ?>"><i class="fa fa-plus"></i></a></td>
+							<td><?php echo $started ?></td>
+							<td><?php echo $replied ?></td>
+							<td><?php echo $started != 0 ? round($replied*100/$started, 2) : 0 ?> %</td>
 							<td><a class="openModal" account=<?php echo $account['account_id']; ?> id="edit"><i class="fa fa-pencil"></i></a></td>
 							<td><a class="openModal" account=<?php echo $account['account_id']; ?> id="delete"><i class="fa fa-trash"></i></a></td>
+						</tr>
+					<?php
+				}
+			?>
+		</table>
+
+		<div class="alert alert-info text-center">Other users account(s)</div>
+		<table class="table table-striped table-hover" id="othersAccountsTable">
+			<tr>
+				<th>Owner</th>
+				<th>Username</th>
+				<th>Status</th>
+				<th>Conversation started</th>
+				<th>Conversation with at least 1 reply</th>
+				<th>% of reply</th>
+			</tr>
+			<?php
+				$status = array('Everything is fine!', 'The account has been blocked: <button id="unblock" class="btn btn-danger btn-sm">What should I do?</button>');
+
+				$accounts = $db->prepare('SELECT * FROM scraping2.Account WHERE instaface_id!=:instaface_id AND instaface_id != 0');
+				$accounts->execute(array(':instaface_id'=>$_SESSION['ID']));
+				$accounts = $accounts->fetchAll();
+
+				foreach ($accounts as $account) {
+					$started = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=false')->fetch()['nb'];
+					$replied = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=true')->fetch()['nb'];
+					?>
+						<tr>
+							<td><?php echo $db->query('SELECT email FROM instagram.User WHERE instaface_id='.$account['instaface_id'])->fetch()['email']; ?></td>
+							<td><?php echo $account['username'] ?></td>
+							<td><?php echo $status[$account['status']] ?></td>
+							<td><?php echo $started ?></td>
+							<td><?php echo $replied ?></td>
+							<td><?php echo $started != 0 ? round($replied*100/$started, 2) : 0 ?> %</td>
 						</tr>
 					<?php
 				}
@@ -148,12 +183,15 @@ $(document).ready(function(){
 	});
 
 	$('#accountsTable th').each(function(i){
-		$(this).click(function(){sortTable(i)});
+		$(this).click(function(){sortTable("accountsTable", i)});
+	});
+	$('#othersAccountsTable th').each(function(i){
+		$(this).click(function(){sortTable("othersAccountsTable", i)});
 	});
 
-	function sortTable(n) {
+	function sortTable(table, n) {
 		var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-		table = document.getElementById("accountsTable");
+		table = document.getElementById(table);
 		switching = true;
 		//Set the sorting direction to ascending:
 		dir = "asc"; 
