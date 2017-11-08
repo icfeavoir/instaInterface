@@ -175,16 +175,30 @@ $(document).ready(function(){
 				/*check if the two rows should switch place,
 				based on the direction, asc or desc:*/
 		      	if (dir == "asc") {
-			      	if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-			        	  //if so, mark as a switch and break the loop:
-			          	shouldSwitch= true;
-			          	break;
-			      	}
+		      		if(Number.isInteger(parseInt(x.innerHTML))){
+		      			if(parseInt(x.innerHTML) > parseInt(y.innerHTML)){
+		      				shouldSwitch = true;
+		      				break;
+		      			}
+		      		}else{
+		      			if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+				        	  //if so, mark as a switch and break the loop:
+				          	shouldSwitch= true;
+				          	break;
+				      	}
+		      		}
 		  		} else if (dir == "desc") {
-		  			if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-		          		//if so, mark as a switch and break the loop:
-		          		shouldSwitch= true;
-		          		break;
+		  			if(Number.isInteger(parseInt(x.innerHTML))){
+						if(parseInt(x.innerHTML) < parseInt(y.innerHTML)){
+		      				shouldSwitch = true;
+		      				break;
+		      			}
+		      		}else{
+			  			if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+			          		//if so, mark as a switch and break the loop:
+			          		shouldSwitch= true;
+			          		break;
+			      		}
 		      		}
 		  		}
 			}
