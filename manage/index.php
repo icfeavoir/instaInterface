@@ -48,10 +48,14 @@
 		<button class="btn btn-lg btn-success" id="newAccount">Add an account</button>
 		<br/><br/>
 
-		<div class="alert alert-info text-center">Your account(s)</div>
+		<div class="col-lg-12 toLoad" id="getTops">Loading tops... <i class="fa fa-circle-o-notch fa-spin" style="font-size:24px"></i></div>
+		<br/><br/>
+
+		<div class="alert alert-info text-center col-lg-12">Your account(s)</div>
 		<table class="table table-striped table-hover" id="accountsTable">
 			<tr>
 				<th>Username</th>
+				<th>Status</th>
 				<th>Conversation started</th>
 				<th>Conversation with at least 1 reply</th>
 				<th>% of reply</th>
@@ -88,14 +92,12 @@
 			<tr>
 				<th>Owner</th>
 				<th>Username</th>
-				<th>Status</th>
 				<th>Conversation started</th>
-				<th>Conversation with at least 1 reply</th>
+				<th>Conversation with at least 50 replies</th>
 				<th>% of reply</th>
 			</tr>
 			<?php
-				$accounts = $db->prepare('SELECT * FROM scraping2.Account WHERE instaface_id != 0');
-				$accounts->execute(array(':instaface_id'=>$_SESSION['ID']));
+				$accounts = $db->query('SELECT * FROM scraping2.Account WHERE instaface_id != 0 ORDER BY scraping2.Account.instaface_id');
 				$accounts = $accounts->fetchAll();
 
 				foreach ($accounts as $account) {
@@ -179,6 +181,13 @@ $(document).ready(function(){
 				});
 				break;
 		}
+	});
+
+	$('.toLoad').each(function(i){
+		var div = $(this);
+		$.post('action.php?action='+div.attr("ID")).done(function(resp){
+			div.html(resp);
+		});
 	});
 
 	$('#accountsTable th').each(function(i){

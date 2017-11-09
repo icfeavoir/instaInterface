@@ -82,6 +82,88 @@
 		echo json_encode($json);
 	}
 
+// ALL
+
+	else if($action == 'getTops'){
+		?>
+		<div>
+			<div class="col-lg-4">		
+				<div class="alert alert-info text-center">Weekly Top</div>				
+				<table class="table">
+					<tr>
+						<th>Rank</th>
+						<th>User</th>
+						<th>Nb of conversations with reply</th>
+					</tr>
+					<?php
+						$accounts = $db->query('SELECT instagram.User.email as user, instagram.User.instaface_id as instaface_id, COUNT(DISTINCT scraping2.ThreadItem.thread_id) as nb FROM (((scraping2.ThreadItem INNER JOIN scraping2.Thread ON scraping2.Thread.thread_id = scraping2.ThreadItem.thread_id) INNER JOIN scraping2.Account ON scraping2.Thread.account_id = Account.account_id) INNER JOIN instagram.User ON Account.instaface_id = instagram.User.instaface_id) WHERE scraping2.ThreadItem.response=true AND (DATE(FROM_UNIXTIME(scraping2.ThreadItem.timestamp/1000000)) > NOW()-INTERVAL 1 WEEK) GROUP BY Account.instaface_id ORDER BY COUNT(DISTINCT scraping2.ThreadItem.thread_id) DESC');
+						$accounts = $accounts->fetchAll();
+
+						foreach ($accounts as $rank=>$account) {
+							?>
+								<tr class="<?php echo $account['instaface_id']==$_SESSION['ID'] ? 'specialLine' : ''; ?>">
+									<td><?php echo $rank+1 ?></td>
+									<td><?php echo $account['instaface_id']==$_SESSION['ID'] ? 'You' : $account['user'] ?></td>
+									<td><?php echo $account['nb'] ?></td>
+								</tr>
+							<?php
+						}
+					?>
+				</table>
+			</div>
+
+			<div class="col-lg-4">		
+				<div class="alert alert-info text-center">Monthly Top</div>				
+				<table class="table">
+					<tr>
+						<th>Rank</th>
+						<th>User</th>
+						<th>Nb of conversations with reply</th>
+					</tr>
+					<?php
+						$accounts = $db->query('SELECT instagram.User.email as user, instagram.User.instaface_id as instaface_id, COUNT(DISTINCT scraping2.ThreadItem.thread_id) as nb FROM (((scraping2.ThreadItem INNER JOIN scraping2.Thread ON scraping2.Thread.thread_id = scraping2.ThreadItem.thread_id) INNER JOIN scraping2.Account ON scraping2.Thread.account_id = Account.account_id) INNER JOIN instagram.User ON Account.instaface_id = instagram.User.instaface_id) WHERE scraping2.ThreadItem.response=true AND (DATE(FROM_UNIXTIME(scraping2.ThreadItem.timestamp/1000000)) > NOW()-INTERVAL 1 MONTH) GROUP BY Account.instaface_id ORDER BY COUNT(DISTINCT scraping2.ThreadItem.thread_id) DESC');
+						$accounts = $accounts->fetchAll();
+
+						foreach ($accounts as $rank=>$account) {
+							?>
+								<tr class="<?php echo $account['instaface_id']==$_SESSION['ID'] ? 'specialLine' : ''; ?>">
+									<td><?php echo $rank+1 ?></td>
+									<td><?php echo $account['instaface_id']==$_SESSION['ID'] ? 'You' : $account['user'] ?></td>
+									<td><?php echo $account['nb'] ?></td>
+								</tr>
+							<?php
+						}
+					?>
+				</table>
+			</div>
+
+			<div class="col-lg-4">
+				<div class="alert alert-info text-center">Forever Top</div>			
+				<table class="table">
+					<tr>
+						<th>Rank</th>
+						<th>User</th>
+						<th>Nb of conversations with reply</th>
+					</tr>
+					<?php
+						$accounts = $db->query('SELECT instagram.User.email as user, instagram.User.instaface_id as instaface_id, COUNT(DISTINCT scraping2.ThreadItem.thread_id) as nb FROM (((scraping2.ThreadItem INNER JOIN scraping2.Thread ON scraping2.Thread.thread_id = scraping2.ThreadItem.thread_id) INNER JOIN scraping2.Account ON scraping2.Thread.account_id = Account.account_id) INNER JOIN instagram.User ON Account.instaface_id = instagram.User.instaface_id) WHERE scraping2.ThreadItem.response=true GROUP BY Account.instaface_id ORDER BY COUNT(DISTINCT scraping2.ThreadItem.thread_id) DESC');
+						$accounts = $accounts->fetchAll();
+
+						foreach ($accounts as $rank=>$account) {
+							?>
+								<tr class="<?php echo $account['instaface_id']==$_SESSION['ID'] ? 'specialLine' : ''; ?>">
+									<td><?php echo $rank+1 ?></td>
+									<td><?php echo $account['instaface_id']==$_SESSION['ID'] ? 'You' : $account['user'] ?></td>
+									<td><?php echo $account['nb'] ?></td>
+								</tr>
+							<?php
+						}
+					?>
+				</table>
+		</div>
+		<?php
+	}
+	
 	else if($action == 'logout'){
 		session_destroy();
 		setcookie('ID', 0, time()+30*24*3600, PATH, null, false, true);
