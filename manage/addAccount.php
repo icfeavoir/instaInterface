@@ -28,9 +28,11 @@
     	<?php
     		// edit or add
     		if(isset($_POST['accountID'])){
-    			$account = $db->prepare('SELECT * FROM scraping2.Account WHERE account_id=:id');
-    			$account->execute(array(':id'=>$_POST['accountID']));
+    			$account = $db->prepare('SELECT * FROM scraping2.Account WHERE account_id=:id AND instaface_id=:instaface_id');
+    			$account->execute(array(':id'=>$_POST['accountID'], ':instaface_id'=>$_SESSION['ID']));
     			$account = $account->fetch();
+    			if(empty($account))
+    				exit('Not your account');
     		}else{
     			$account = array();
     		}
