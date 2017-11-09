@@ -47,13 +47,14 @@
 		<button class="btn btn-lg btn-success" id="newAccount">Add an user</button>
 		<br/><br/>
 
+		<div class="col-lg-12 toLoad" id="getTops">Loading tops... <i class="fa fa-circle-o-notch fa-spin" style="font-size:24px"></i></div>
+		<br/><br/>
+
 		<div class="col-lg-12 text-center">
 			<div id="users_stats"></div>
 		</div>
 
-		<div class="alert alert-info text-center col-sm-12">
-			External Users
-		</div>
+		<div class="alert alert-info text-center col-sm-12">Users</div>
 		<table class="table table-striped table-hover" id="externalTable">
 			<tr>
 				<th>Email</th>
@@ -87,14 +88,11 @@
 			?>
 		</table>
 		
-		<div class="alert alert-info text-center col-sm-12">
-			Internal Users
-		</div>
+		<div class="alert alert-info text-center col-sm-12">Admin (You)</div>
 		<table class="table table-striped table-hover">
 			<tr>
 				<th>Email</th>
 				<th>Update</th>
-				<th>Delete</th>
 			</tr>
 			<?php
 				$users = $db->prepare('SELECT * FROM instagram.User WHERE rights=2 ORDER BY instaface_id DESC');
@@ -105,14 +103,6 @@
 						<tr>
 							<td><?php echo $user['email']; ?></td>
 							<td><a class="openModal" user=<?php echo $user['instaface_id']; ?> id="edit"><i class="fa fa-pencil"></i></a></td>
-							<td>
-								<?php
-								if($user['instaface_id'] == $_SESSION['ID']){
-									echo 'You';
-								}else{?>
-									<a class="openModal" user=<?php echo $user['instaface_id']; ?> id="delete"><i class="fa fa-trash"></i></a>
-								<?php } ?>
-							</td>
 						</tr>
 					<?php
 				}
@@ -139,6 +129,7 @@
 $(document).ready(function(){
 	google.charts.load('current', {packages: ['corechart', 'bar']});
 	google.charts.setOnLoadCallback(function(){drawGraph()});
+	var graph, materialChart;
 
 	function openModal(file, data={}, sync=true){
 		$('#modal').modal();
@@ -150,7 +141,7 @@ $(document).ready(function(){
 				$('#modal .modal-content .modal-title').html($(resp).filter('title').text());
 				$('#modal .modal-content .modal-body').html(resp);
 			},
-			async: sync,	// synchronous for google charts
+			async: true,
 		});
 	}
 
@@ -197,7 +188,6 @@ $(document).ready(function(){
 	});
 
 	function drawGraph(){
-		var graphData = [];
 		$('td.msgSent').each(function(i){	// get all users and fill the table
 			var it = $(this);
 			$.ajax({
@@ -210,35 +200,34 @@ $(document).ready(function(){
 					resp.received = resp.received || 0;
 					it.text(resp.sent);
 					it.next().text(resp.received);
-					graphData.push([it.closest("tr").find(".userEmail").text(), parseInt(resp.sent), parseInt(resp.received)]);
+
+					graph.addRow([it.closest("tr").find(".userEmail").text(), parseInt(resp.sent), parseInt(resp.received)]);
+					materialChart.draw(graph);
 				},
-				async: false,
+				async: true,
 			});
 		});
 
-		var data = new google.visualization.DataTable();
-			data.addColumn('string', 'User');
-			data.addColumn('number', 'Messages sent');
-			data.addColumn('number', 'Messages received');
+		graph = new google.visualization.DataTable();
+		graph.addColumn('string', 'User');
+		graph.addColumn('number', 'Messages sent');
+		graph.addColumn('number', 'Messages received');
 
-			data.addRows(graphData);
+		graph.addRows([]);
 
-			var options = {
-				title: '',
-				hAxis: {
-					title: '',
-				},
-				vAxis: {
-					title: ''
-				}
-			};
-
-			var materialChart = new google.charts.Bar(document.getElementById('users_stats'));
-			materialChart.draw(data, options);
+		var materialChart = new google.charts.Bar(document.getElementById('users_stats'));
+		materialChart.draw(graph);
 	}
 
 	$('#externalTable th').each(function(i){
 		$(this).click(function(){sortTable(i)});
+	});
+
+	$('.toLoad').each(function(i){
+		var div = $(this);
+		$.post('action.php?action='+div.attr("ID")).done(function(resp){
+			div.html(resp);
+		});
 	});
 
 	function sortTable(n) {

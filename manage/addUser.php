@@ -50,14 +50,8 @@
 				<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
 				<input required id="password" type="text" class="form-control" name="password" placeholder="Password">
 			</div><br/>
-			<div class="form-group">
-	      		<div class="col-sm-4">
-	        		<select class="form-control" name="rights">
-	          			<option <?php echo $rights==1?'selected':''; ?> value="1">External</option>
-	          			<option <?php echo $rights==2?'selected':''; ?> value="2">Internal (works at YouPic)</option>
-	        		</select>
-	      		</div>
-	    	</div>
+			
+	    	<input type="hidden" name="rights" value="1" />
 			<br/>
 			<input type="submit" value="<?php echo (isset($_POST['userID']) ? 'Edit' : 'Add'); ?>!" class="btn btn-md btn-success" />
 		</form>

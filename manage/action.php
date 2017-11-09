@@ -42,10 +42,6 @@
 			$statement = $db->prepare('SELECT DATE(FROM_UNIXTIME(timestamp/1000000)) as date FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id=:accountID) AND response=true ORDER BY timestamp');
 			$statement->execute(array(':accountID'=>$_POST['accountID']));
 			$json['received'] = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-			$statement = $db->prepare('SELECT DISTINCT thread_id FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id=:accountID)');
-			$statement->execute(array(':accountID'=>$_POST['accountID']));
-			$json['received'] = $statement->fetchAll(PDO::FETCH_ASSOC);
 		}
 		echo json_encode($json);
 	}

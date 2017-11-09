@@ -102,7 +102,7 @@
 
 				foreach ($accounts as $account) {
 					$started = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=false')->fetch()['nb'];
-					$replied = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=true')->fetch()['nb'];
+					$replied = count($db->query('SELECT Thread.thread_id FROM (scraping2.Thread JOIN scraping2.ThreadItem ON Thread.thread_id=ThreadItem.thread_id) WHERE Thread.account_id='.$account['account_id'].' GROUP BY Thread.thread_id HAVING COUNT(ThreadItem.thread_id)>50')->fetchAll());
 					?>
 						<tr class="<?php echo $account['instaface_id'] == $_SESSION['ID'] ? 'specialLine' : '' ?>">
 							<td><?php echo $account['instaface_id'] == $_SESSION['ID'] ? 'You' : $db->query('SELECT email FROM instagram.User WHERE instaface_id='.$account['instaface_id'])->fetch()['email']; ?></td>
