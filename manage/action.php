@@ -50,7 +50,6 @@
 	}
 
 // ADMIN
-
 	if($action == 'saveUser'){
 		if(isset($_POST['email']) && isset($_POST['password']) && $_POST['email'] != "" && $_POST['password'] != ""){
 			$statement = $db->prepare('INSERT INTO instagram.User (email, password, rights) VALUES(:email, :password, :rights)');
@@ -78,6 +77,31 @@
 			$statement = $db->prepare('SELECT Account.instaface_id as instaface_id, COUNT(DISTINCT scraping2.ThreadItem.thread_id) as nb FROM ((scraping2.ThreadItem INNER JOIN scraping2.Thread ON scraping2.Thread.thread_id = scraping2.ThreadItem.thread_id) INNER JOIN scraping2.Account ON scraping2.Thread.account_id = Account.account_id) WHERE scraping2.ThreadItem.response=true AND Account.instaface_id=:userID GROUP BY Account.instaface_id');
 			$statement->execute(array(':userID'=>$_POST['userID']));
 			$json['received'] = $statement->fetch(PDO::FETCH_ASSOC)['nb'];
+		}
+		echo json_encode($json);
+	}
+	else if($action == 'getGraphUser'){
+		$json = array();
+		if(isset($_POST['type'])){
+			switch($_POST['type']){
+				case 'forever';
+					$statementReceived = $db->prepare('SELECT instagram.User.email, Account.instaface_id as instaface_id, COUNT(DISTINCT scraping2.ThreadItem.thread_id) as nb FROM (((scraping2.ThreadItem INNER JOIN scraping2.Thread ON scraping2.Thread.thread_id = scraping2.ThreadItem.thread_id) INNER JOIN scraping2.Account ON scraping2.Thread.account_id = Account.account_id) INNER JOIN instagram.User ON instagram.User.instaface_id=scraping2.Account.instaface_id) WHERE scraping2.ThreadItem.response=true GROUP BY Account.instaface_id ORDER BY instagram.User.instaface_id');
+					$statementSent = $db->prepare('SELECT instagram.User.email, Account.instaface_id as instaface_id, COUNT(DISTINCT scraping2.ThreadItem.thread_id) as nb FROM (((scraping2.ThreadItem INNER JOIN scraping2.Thread ON scraping2.Thread.thread_id = scraping2.ThreadItem.thread_id) INNER JOIN scraping2.Account ON scraping2.Thread.account_id = Account.account_id) INNER JOIN instagram.User ON instagram.User.instaface_id=scraping2.Account.instaface_id) WHERE scraping2.ThreadItem.response=false GROUP BY Account.instaface_id ORDER BY instagram.User.instaface_id');	
+					break;
+				case 'monthly';
+					$statementReceived = $db->prepare('SELECT instagram.User.email, Account.instaface_id as instaface_id, COUNT(DISTINCT scraping2.ThreadItem.thread_id) as nb FROM (((scraping2.ThreadItem INNER JOIN scraping2.Thread ON scraping2.Thread.thread_id = scraping2.ThreadItem.thread_id) INNER JOIN scraping2.Account ON scraping2.Thread.account_id = Account.account_id) INNER JOIN instagram.User ON instagram.User.instaface_id=scraping2.Account.instaface_id) WHERE scraping2.ThreadItem.response=true AND (DATE(FROM_UNIXTIME(scraping2.ThreadItem.timestamp/1000000)) > NOW() - INTERVAL 1 MONTH) GROUP BY Account.instaface_id ORDER BY instagram.User.instaface_id');
+					$statementSent = $db->prepare('SELECT instagram.User.email, Account.instaface_id as instaface_id, COUNT(DISTINCT scraping2.ThreadItem.thread_id) as nb FROM (((scraping2.ThreadItem INNER JOIN scraping2.Thread ON scraping2.Thread.thread_id = scraping2.ThreadItem.thread_id) INNER JOIN scraping2.Account ON scraping2.Thread.account_id = Account.account_id) INNER JOIN instagram.User ON instagram.User.instaface_id=scraping2.Account.instaface_id) WHERE scraping2.ThreadItem.response=false AND (DATE(FROM_UNIXTIME(scraping2.ThreadItem.timestamp/1000000)) > NOW() - INTERVAL 1 MONTH) GROUP BY Account.instaface_id ORDER BY instagram.User.instaface_id');
+					break;
+				case 'weekly';
+					$statementReceived = $db->prepare('SELECT instagram.User.email, Account.instaface_id as instaface_id, COUNT(DISTINCT scraping2.ThreadItem.thread_id) as nb FROM (((scraping2.ThreadItem INNER JOIN scraping2.Thread ON scraping2.Thread.thread_id = scraping2.ThreadItem.thread_id) INNER JOIN scraping2.Account ON scraping2.Thread.account_id = Account.account_id) INNER JOIN instagram.User ON instagram.User.instaface_id=scraping2.Account.instaface_id) WHERE scraping2.ThreadItem.response=true AND (DATE(FROM_UNIXTIME(scraping2.ThreadItem.timestamp/1000000)) > NOW() - INTERVAL 1 WEEK) GROUP BY Account.instaface_id ORDER BY instagram.User.instaface_id');
+					$statementSent = $db->prepare('SELECT instagram.User.email, Account.instaface_id as instaface_id, COUNT(DISTINCT scraping2.ThreadItem.thread_id) as nb FROM (((scraping2.ThreadItem INNER JOIN scraping2.Thread ON scraping2.Thread.thread_id = scraping2.ThreadItem.thread_id) INNER JOIN scraping2.Account ON scraping2.Thread.account_id = Account.account_id) INNER JOIN instagram.User ON instagram.User.instaface_id=scraping2.Account.instaface_id) WHERE scraping2.ThreadItem.response=false AND (DATE(FROM_UNIXTIME(scraping2.ThreadItem.timestamp/1000000)) > NOW() - INTERVAL 1 WEEK) GROUP BY Account.instaface_id ORDER BY instagram.User.instaface_id');
+					break;
+
+			}
+			$statementReceived->execute();
+			$json['received'] = $statementReceived->fetchAll(PDO::FETCH_ASSOC);
+			$statementSent->execute();
+			$json['sent'] = $statementSent->fetchAll(PDO::FETCH_ASSOC);
 		}
 		echo json_encode($json);
 	}

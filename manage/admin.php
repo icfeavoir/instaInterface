@@ -50,7 +50,19 @@
 		<div class="col-lg-12 toLoad" id="getTops">Loading tops... <i class="fa fa-circle-o-notch fa-spin"></i></div>
 		<br/><br/>
 
-		<div class="col-lg-12 text-center">
+		<div class="col-lg-1">
+			<div class="radio">
+			  <label><input type="radio" name="graphbtn" class="graphRadioBtn" id="weekly">Weekly</label>
+			</div><br/>
+			<div class="radio">
+			  <label><input type="radio" name="graphbtn" class="graphRadioBtn" id="monthly">Monthly</label>
+			</div><br/>
+			<div class="radio">
+			  <label><input type="radio" name="graphbtn" class="graphRadioBtn" id="forever" checked>Forever</label>
+			</div><br/>
+		</div>
+		<div class="col-lg-11 text-center">
+			<div id="load_graph">Loading graph... <i class="fa fa-circle-o-notch fa-spin"></i></div>
 			<div id="users_stats"></div>
 		</div>
 
@@ -213,7 +225,32 @@ $(document).ready(function(){
 		}
 	});
 
+	$('.graphRadioBtn').click(function(){
+		$('#load_graph').html('Loading graph... <i class="fa fa-circle-o-notch fa-spin"></i>');
+		$('#users_stats').html('');
+		graph = new google.visualization.DataTable();
+		graph.addColumn('string', 'User');
+		graph.addColumn('number', 'Conversation started');
+		graph.addColumn('number', 'Conversation with reply');
+		// $('#users_stats').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
+		$.post('action.php?action=getGraphUser', {'type': $(this).attr('id')}).done(function(resp){
+			resp = JSON.parse(resp);
+			for(var i=0; i<resp.received.length; i++){
+				graph.addRow([resp.received[i].email, parseInt(resp.sent[i].nb), parseInt(resp.received[i].nb)]);
+			}
+			var materialChart = new google.charts.Bar(document.getElementById('users_stats'));
+			$('#load_graph').html('');
+			materialChart.draw(graph);
+		});
+	});
+
 	function drawGraph(){
+		graph = new google.visualization.DataTable();
+		materialChart = new google.charts.Bar(document.getElementById('users_stats'));
+		graph.addColumn('string', 'User');
+		graph.addColumn('number', 'Conversation started');
+		graph.addColumn('number', 'Conversation with reply');
+		
 		$('td.msgSent').each(function(i){	// get all users and fill the table
 			var it = $(this);
 			$.ajax({
@@ -227,22 +264,15 @@ $(document).ready(function(){
 					it.text(resp.sent);
 					it.next().text(resp.received);
 
-					graph.addRow([it.closest("tr").find(".userEmail").text(), parseInt(resp.sent), parseInt(resp.received)]);
-					materialChart.draw(graph);
+					if(parseInt(resp.sent) != 0){
+						graph.addRow([it.closest("tr").find(".userEmail").text(), parseInt(resp.sent), parseInt(resp.received)]);
+						$('#load_graph').html('');
+						materialChart.draw(graph);
+					}
 				},
 				async: true,
 			});
 		});
-
-		graph = new google.visualization.DataTable();
-		graph.addColumn('string', 'User');
-		graph.addColumn('number', 'Conversation started');
-		graph.addColumn('number', 'Conversation with reply');
-
-		graph.addRows([]);
-
-		var materialChart = new google.charts.Bar(document.getElementById('users_stats'));
-		materialChart.draw(graph);
 	}
 
 	$('#externalTable th').each(function(i){
