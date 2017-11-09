@@ -35,6 +35,9 @@
   			#accountsTable, #othersAccountsTable th:hover{
   				cursor: pointer;
   			}
+  			.specialLine{
+  				background-color: #AEC7E8;
+  			}
   		</style>
     </head>
 
@@ -49,7 +52,6 @@
 		<table class="table table-striped table-hover" id="accountsTable">
 			<tr>
 				<th>Username</th>
-				<th>Status</th>
 				<th>Conversation started</th>
 				<th>Conversation with at least 1 reply</th>
 				<th>% of reply</th>
@@ -81,8 +83,8 @@
 			?>
 		</table>
 
-		<div class="alert alert-info text-center">Other users account(s)</div>
-		<table class="table table-striped table-hover" id="othersAccountsTable">
+		<div class="alert alert-info text-center">All accounts</div>
+		<table class="table" id="othersAccountsTable">
 			<tr>
 				<th>Owner</th>
 				<th>Username</th>
@@ -92,9 +94,7 @@
 				<th>% of reply</th>
 			</tr>
 			<?php
-				$status = array('Everything is fine!', 'The account has been blocked: <button id="unblock" class="btn btn-danger btn-sm">What should I do?</button>');
-
-				$accounts = $db->prepare('SELECT * FROM scraping2.Account WHERE instaface_id!=:instaface_id AND instaface_id != 0');
+				$accounts = $db->prepare('SELECT * FROM scraping2.Account WHERE instaface_id != 0');
 				$accounts->execute(array(':instaface_id'=>$_SESSION['ID']));
 				$accounts = $accounts->fetchAll();
 
@@ -102,10 +102,9 @@
 					$started = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=false')->fetch()['nb'];
 					$replied = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=true')->fetch()['nb'];
 					?>
-						<tr>
-							<td><?php echo $db->query('SELECT email FROM instagram.User WHERE instaface_id='.$account['instaface_id'])->fetch()['email']; ?></td>
+						<tr class="<?php echo $account['instaface_id'] == $_SESSION['ID'] ? 'specialLine' : '' ?>">
+							<td><?php echo $account['instaface_id'] == $_SESSION['ID'] ? 'You' : $db->query('SELECT email FROM instagram.User WHERE instaface_id='.$account['instaface_id'])->fetch()['email']; ?></td>
 							<td><?php echo $account['username'] ?></td>
-							<td><?php echo $status[$account['status']] ?></td>
 							<td><?php echo $started ?></td>
 							<td><?php echo $replied ?></td>
 							<td><?php echo $started != 0 ? round($replied*100/$started, 2) : 0 ?> %</td>
