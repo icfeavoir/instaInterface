@@ -47,28 +47,27 @@
 
 		<table class="table table-striped table-hover" id="accountsTable">
 			<tr>
+				<th>Owner</th>
 				<th>Username</th>
-				<th>Status</th>
-				<th>Messages sent</th>
-				<th>Messages received</th>
-				<th>More</th>
+				<th>Conversation started</th>
+				<th>Conversation with at least 1 reply</th>
+				<th>% of reply</th>
 			</tr>
 			<?php
-				$status = array('Everything is fine!', 'The account has been blocked: <button id="unblock" class="btn btn-danger btn-sm">What should the user do?</button>');
-
-				$accounts = $db->prepare('SELECT * FROM scraping2.Account WHERE instaface_id=:instaface_id');
-				$accounts->execute(array(':instaface_id'=>$_POST['userID']));
+				$accounts = $db->prepare('SELECT * FROM scraping2.Account WHERE instaface_id = :userID');
+				$accounts->execute(array(':userID'=>$_POST['userID']));
 				$accounts = $accounts->fetchAll();
+
 				foreach ($accounts as $account) {
-					$sent = $db->query('SELECT COUNT(*) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=false')->fetch()['nb'];
-					$received = $db->query('SELECT COUNT(*) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=true')->fetch()['nb'];
+					$started = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=false')->fetch()['nb'];
+					$replied = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=true')->fetch()['nb'];
 					?>
-						<tr>
+						<tr class="<?php echo $account['instaface_id'] == $_SESSION['ID'] ? 'specialLine' : '' ?>">
+							<td><?php echo $account['instaface_id'] == $_SESSION['ID'] ? 'You' : $db->query('SELECT email FROM instagram.User WHERE instaface_id='.$account['instaface_id'])->fetch()['email']; ?></td>
 							<td><?php echo $account['username'] ?></td>
-							<td><?php echo $status[$account['status']] ?></td>
-							<td><?php echo $sent ?></td>
-							<td><?php echo $received ?></td>
-							<td><a href="more.php?accountID=<?php echo $account['account_id']; ?>"><i class="fa fa-plus"></i></a></td>
+							<td><?php echo $started ?></td>
+							<td><?php echo $replied ?></td>
+							<td><?php echo $started != 0 ? round($replied*100/$started, 2) : 0 ?></td>
 						</tr>
 					<?php
 				}

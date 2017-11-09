@@ -48,7 +48,7 @@
 		<button class="btn btn-lg btn-success" id="newAccount">Add an account</button>
 		<br/><br/>
 
-		<div class="col-lg-12 toLoad" id="getTops">Loading tops... <i class="fa fa-circle-o-notch fa-spin" style="font-size:24px"></i></div>
+		<div class="col-lg-12 toLoad" id="getTops">Loading tops... <i class="fa fa-circle-o-notch fa-spin"></i></div>
 		<br/><br/>
 
 		<div class="alert alert-info text-center col-lg-12">Your account(s)</div>
@@ -87,13 +87,13 @@
 			?>
 		</table>
 
-		<div class="alert alert-info text-center">All accounts</div>
+		<div class="alert alert-info text-center">All accounts with conversations</div>
 		<table class="table" id="othersAccountsTable">
 			<tr>
 				<th>Owner</th>
 				<th>Username</th>
 				<th>Conversation started</th>
-				<th>Conversation with at least 50 replies</th>
+				<th>Conversation with at least 1 reply</th>
 				<th>% of reply</th>
 			</tr>
 			<?php
@@ -102,14 +102,16 @@
 
 				foreach ($accounts as $account) {
 					$started = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=false')->fetch()['nb'];
-					$replied = count($db->query('SELECT Thread.thread_id FROM (scraping2.Thread JOIN scraping2.ThreadItem ON Thread.thread_id=ThreadItem.thread_id) WHERE Thread.account_id='.$account['account_id'].' GROUP BY Thread.thread_id HAVING COUNT(ThreadItem.thread_id)>50')->fetchAll());
+					$replied = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=true')->fetch()['nb'];
+					if($started == 0 || $replied < 50)
+						continue;
 					?>
 						<tr class="<?php echo $account['instaface_id'] == $_SESSION['ID'] ? 'specialLine' : '' ?>">
 							<td><?php echo $account['instaface_id'] == $_SESSION['ID'] ? 'You' : $db->query('SELECT email FROM instagram.User WHERE instaface_id='.$account['instaface_id'])->fetch()['email']; ?></td>
 							<td><?php echo $account['username'] ?></td>
 							<td><?php echo $started ?></td>
 							<td><?php echo $replied ?></td>
-							<td><?php echo $started != 0 ? round($replied*100/$started, 2) : 0 ?> %</td>
+							<td><?php echo $started != 0 ? round($replied*100/$started, 2) : 0 ?></td>
 						</tr>
 					<?php
 				}
@@ -221,8 +223,8 @@ $(document).ready(function(){
 				/*check if the two rows should switch place,
 				based on the direction, asc or desc:*/
 		      	if (dir == "asc") {
-		      		if(Number.isInteger(parseInt(x.innerHTML))){
-		      			if(parseInt(x.innerHTML) > parseInt(y.innerHTML)){
+		      		if(Number.isInteger(parseFloat(x.innerHTML))){
+		      			if(parseFloat(x.innerHTML) > parseFloat(y.innerHTML)){
 		      				shouldSwitch = true;
 		      				break;
 		      			}
@@ -234,8 +236,8 @@ $(document).ready(function(){
 				      	}
 		      		}
 		  		} else if (dir == "desc") {
-		  			if(Number.isInteger(parseInt(x.innerHTML))){
-						if(parseInt(x.innerHTML) < parseInt(y.innerHTML)){
+		  			if(Number.isInteger(parseFloat(x.innerHTML))){
+						if(parseFloat(x.innerHTML) < parseFloat(y.innerHTML)){
 		      				shouldSwitch = true;
 		      				break;
 		      			}

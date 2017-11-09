@@ -34,7 +34,7 @@
   			th{
   				text-align: center;
   			}
-  			#externalTable th:hover{
+  			th:hover{
   				cursor: pointer;
   			}
   		</style>
@@ -47,7 +47,7 @@
 		<button class="btn btn-lg btn-success" id="newAccount">Add an user</button>
 		<br/><br/>
 
-		<div class="col-lg-12 toLoad" id="getTops">Loading tops... <i class="fa fa-circle-o-notch fa-spin" style="font-size:24px"></i></div>
+		<div class="col-lg-12 toLoad" id="getTops">Loading tops... <i class="fa fa-circle-o-notch fa-spin"></i></div>
 		<br/><br/>
 
 		<div class="col-lg-12 text-center">
@@ -59,8 +59,8 @@
 			<tr>
 				<th>Email</th>
 				<th>Number of accounts</th>
-				<th>Total number msg sent</th>
-				<th>Total number msg received</th>
+				<th>Total number conv. started</th>
+				<th>Total number conv. replied</th>
 				<th>More</th>
 				<th>Update</th>
 				<th>Delete</th>
@@ -77,11 +77,42 @@
 						<tr>
 							<td class="userEmail"><?php echo $user['email']; ?></td>
 							<td><?php echo $nbAccounts; ?></td>
-							<td class="msgSent" id="<?php echo $user['instaface_id']; ?>"><?php echo 0; ?></td>
-							<td class="msgReceived" id="<?php echo $user['instaface_id']; ?>"><?php echo 0; ?></td>
+							<td class="msgSent" id="<?php echo $user['instaface_id']; ?>"><i class="fa fa-circle-o-notch fa-spin"></i></td>
+							<td class="msgReceived" id="<?php echo $user['instaface_id']; ?>"><i class="fa fa-circle-o-notch fa-spin"></i></td>
 							<td><a class="openModal" user=<?php echo $user['instaface_id']; ?> id="more"><i class="fa fa-plus"></i></a></td>
 							<td><a class="openModal" user=<?php echo $user['instaface_id']; ?> id="edit"><i class="fa fa-pencil"></i></a></td>
 							<td><a class="openModal" user=<?php echo $user['instaface_id']; ?> id="delete"><i class="fa fa-trash"></i></a>
+						</tr>
+					<?php
+				}
+			?>
+		</table>
+
+		<div class="alert alert-info text-center">All accounts with conversations</div>
+		<table class="table table-striped table-hover" id="allAccountsTable">
+			<tr>
+				<th>Owner</th>
+				<th>Username</th>
+				<th>Conversation started</th>
+				<th>Conversation with at least 1 reply</th>
+				<th>% of reply</th>
+			</tr>
+			<?php
+				$accounts = $db->query('SELECT * FROM scraping2.Account WHERE instaface_id != 0 ORDER BY scraping2.Account.instaface_id');
+				$accounts = $accounts->fetchAll();
+
+				foreach ($accounts as $account) {
+					$started = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=false')->fetch()['nb'];
+					$replied = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=true')->fetch()['nb'];
+					if($started == 0 || $replied < 50)
+						continue;
+					?>
+						<tr">
+							<td><?php echo $db->query('SELECT email FROM instagram.User WHERE instaface_id='.$account['instaface_id'])->fetch()['email']; ?></td>
+							<td><?php echo $account['username'] ?></td>
+							<td><?php echo $started ?></td>
+							<td><?php echo $replied ?></td>
+							<td><?php echo $started != 0 ? round($replied*100/$started, 2) : 0 ?></td>
 						</tr>
 					<?php
 				}
@@ -109,16 +140,14 @@
 			?>
 		</table>
 
-		<!-- Modal -->
 		<div class="modal fade" id="modal" role="dialog">
 			<div class="modal-dialog modal-lg">
-			<!-- Modal content-->
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal">&times;</button>
 						<h4 class="modal-title"></h4>
 					</div>
-					<div class="modal-body">Please wait...</div>
+					<div class="modal-body">Please wait... <i class="fa fa-circle-o-notch fa-spin"></i></div>
 				</div>
 			</div>
 		</div>
@@ -133,21 +162,18 @@ $(document).ready(function(){
 
 	function openModal(file, data={}, sync=true){
 		$('#modal').modal();
+		$('.modal-body').html('Please wait... <i class="fa fa-circle-o-notch fa-spin">');
 		$.ajax({
 			type: 'POST',
 			url: file+".php",
 			data: data,
 			success: function( resp ){
-				$('#modal .modal-content .modal-title').html($(resp).filter('title').text());
-				$('#modal .modal-content .modal-body').html(resp);
+				$('.modal-title').html($(resp).filter('title').text());
+				$('.modal-body').html(resp);
 			},
 			async: true,
 		});
 	}
-
-	$('#modal').on('hidden.bs.modal', function () {
-		// location.reload();
-	})
 
 	$('#newAccount').click(function(){
 		openModal('addUser');
@@ -210,8 +236,8 @@ $(document).ready(function(){
 
 		graph = new google.visualization.DataTable();
 		graph.addColumn('string', 'User');
-		graph.addColumn('number', 'Messages sent');
-		graph.addColumn('number', 'Messages received');
+		graph.addColumn('number', 'Conversation started');
+		graph.addColumn('number', 'Conversation with reply');
 
 		graph.addRows([]);
 
@@ -220,7 +246,10 @@ $(document).ready(function(){
 	}
 
 	$('#externalTable th').each(function(i){
-		$(this).click(function(){sortTable(i)});
+		$(this).click(function(){sortTable('externalTable', i)});
+	});
+	$('#allAccountsTable th').each(function(i){
+		$(this).click(function(){sortTable('allAccountsTable', i)});
 	});
 
 	$('.toLoad').each(function(i){
@@ -230,12 +259,12 @@ $(document).ready(function(){
 		});
 	});
 
-	function sortTable(n) {
+	function sortTable(table, n) {
 		var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-		table = document.getElementById("externalTable");
+		table = document.getElementById(table);
 		switching = true;
 		//Set the sorting direction to ascending:
-		dir = "asc"; 
+		dir = "desc"; 
 		/*Make a loop that will continue until
 		no switching has been done:*/
 		while (switching) {
@@ -291,12 +320,15 @@ $(document).ready(function(){
 			} else {
 				/*If no switching has been done AND the direction is "asc",
 				set the direction to "desc" and run the while loop again.*/
-				if (switchcount == 0 && dir == "asc") {
-					dir = "desc";
+				if (switchcount == 0 && dir == "desc") {
+					dir = "asc";
 					switching = true;
 	      		}
 			}
 		}
 	}
+
+	//sort table by percentage
+	sortTable('allAccountsTable', 4);
 });
 </script>

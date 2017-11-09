@@ -45,6 +45,9 @@
 		}
 		echo json_encode($json);
 	}
+	else if($action == 'reconnected'){
+		// if(isset($_POST['account']))
+	}
 
 // ADMIN
 
@@ -68,10 +71,11 @@
 	}else if($action == 'getTotalNumbers'){
 		$json = array();
 		if(isset($_POST['userID'])){
-			$statement = $db->prepare('SELECT COUNT(*) AS nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id IN (SELECT account_id FROM scraping2.Account WHERE instaface_id=:userID)) AND response=false');
+			$statement = $db->prepare('SELECT Account.instaface_id as instaface_id, COUNT(DISTINCT scraping2.ThreadItem.thread_id) as nb FROM ((scraping2.ThreadItem INNER JOIN scraping2.Thread ON scraping2.Thread.thread_id = scraping2.ThreadItem.thread_id) INNER JOIN scraping2.Account ON scraping2.Thread.account_id = Account.account_id) WHERE scraping2.ThreadItem.response=false AND Account.instaface_id=:userID GROUP BY Account.instaface_id');
 			$statement->execute(array(':userID'=>$_POST['userID']));
 			$json['sent'] = $statement->fetch(PDO::FETCH_ASSOC)['nb'];
-			$statement = $db->prepare('SELECT COUNT(*) AS nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id IN (SELECT account_id FROM scraping2.Account WHERE instaface_id=:userID)) AND response=true');
+
+			$statement = $db->prepare('SELECT Account.instaface_id as instaface_id, COUNT(DISTINCT scraping2.ThreadItem.thread_id) as nb FROM ((scraping2.ThreadItem INNER JOIN scraping2.Thread ON scraping2.Thread.thread_id = scraping2.ThreadItem.thread_id) INNER JOIN scraping2.Account ON scraping2.Thread.account_id = Account.account_id) WHERE scraping2.ThreadItem.response=true AND Account.instaface_id=:userID GROUP BY Account.instaface_id');
 			$statement->execute(array(':userID'=>$_POST['userID']));
 			$json['received'] = $statement->fetch(PDO::FETCH_ASSOC)['nb'];
 		}
