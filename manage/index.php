@@ -63,13 +63,13 @@
 				<th>Delete</th>
 			</tr>
 			<?php
-				$status = array('Everything is fine!', 'The account has been blocked: <button id="unblock" class="btn btn-danger btn-sm">What should I do?</button>');
-
 				$accounts = $db->prepare('SELECT * FROM scraping2.Account WHERE instaface_id=:instaface_id');
 				$accounts->execute(array(':instaface_id'=>$_SESSION['ID']));
 				$accounts = $accounts->fetchAll();
 
 				foreach ($accounts as $account) {
+					$status = array('Everything is fine!', 'The account has been blocked: <button id="'.$account['account_id'].'" class="unblock btn btn-danger btn-sm">What should I do?</button>');
+
 					$started = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=false')->fetch()['nb'];
 					$replied = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=true')->fetch()['nb'];
 					?>
@@ -78,7 +78,7 @@
 							<td><?php echo $status[$account['status']] ?></td>
 							<td><?php echo $started ?></td>
 							<td><?php echo $replied ?></td>
-							<td><?php echo $started != 0 ? round($replied*100/$started, 2) : 0 ?> %</td>
+							<td><?php echo $started != 0 ? round($replied*100/$started, 2) : 0 ?></td>
 							<td><a class="openModal" account=<?php echo $account['account_id']; ?> id="edit"><i class="fa fa-pencil"></i></a></td>
 							<td><a class="openModal" account=<?php echo $account['account_id']; ?> id="delete"><i class="fa fa-trash"></i></a></td>
 						</tr>
@@ -146,7 +146,7 @@ $(document).ready(function(){
 				$('#modal .modal-content .modal-body').html(resp);
 				$('#modal').modal();
 			},
-			async: sync,	// synchronous for google charts
+			async: sync,
 		});
 	}
 
@@ -167,11 +167,11 @@ $(document).ready(function(){
 				    buttons: {
 				        confirm: {
 				            label: 'Yes',
-				            className: 'btn-success'
+				            className: 'btn-danger'
 				        },
 				        cancel: {
 				            label: 'No',
-				            className: 'btn-danger'
+				            className: 'btn-success'
 				        }
 				    },
 				    callback: function (result) {
@@ -267,12 +267,29 @@ $(document).ready(function(){
 			}
 		}
 	}
-	$('#unblock').click(function(){
-		bootbox.alert({
-		    message: "You should connect to this Instagram account, and check the <i>I'm not a robot</i> field.",
-		    backdrop: true
+	$('.unblock').click(function(){
+		var accountID = $(this);
+		bootbox.confirm({
+		    message: "You should connect to this Instagram account, and check the <i>I'm not a robot</i> field. It it done?",
+		    backdrop: true,
+		    buttons: {
+		        confirm: {
+		            label: 'Yes',
+		            className: 'btn-success'
+		        },
+		        cancel: {
+		            label: 'No',
+		            className: 'btn-danger'
+		        }
+		    },
+		    callback: function (result) {
+		    	if(result){
+		    		$.post('action.php?action=reconnect', {'accountID': accountID.attr('id')});
+		    		accountID.parent().text('Everything is fine!');
+		    	}
+		    }
 		});
-	})
+	});
 
 });
 </script>

@@ -44,13 +44,15 @@
 			$json['received'] = $statement->fetchAll(PDO::FETCH_ASSOC);
 		}
 		echo json_encode($json);
-	}
-	else if($action == 'reconnected'){
-		// if(isset($_POST['account']))
+	}else if($action == 'reconnect'){
+		if(isset($_POST['accountID'])){
+			$statement = $db->prepare('UPDATE scraping2.Account SET status=0 WHERE account_id=:accountID');
+			$statement->execute(array(':accountID'=>$_POST['accountID']));
+		}
 	}
 
 // ADMIN
-	if($action == 'saveUser'){
+	else if($action == 'saveUser'){
 		if(isset($_POST['email']) && isset($_POST['password']) && $_POST['email'] != "" && $_POST['password'] != ""){
 			$statement = $db->prepare('INSERT INTO instagram.User (email, password, rights) VALUES(:email, :password, :rights)');
 			$statement->execute(array(':email'=>$_POST['email'], ':password'=>password_hash($_POST['password'], PASSWORD_DEFAULT), ':rights'=>$_POST['rights']));

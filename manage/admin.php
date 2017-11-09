@@ -313,8 +313,8 @@ $(document).ready(function(){
 				/*check if the two rows should switch place,
 				based on the direction, asc or desc:*/
 		      	if (dir == "asc") {
-		      		if(Number.isInteger(parseInt(x.innerHTML))){
-		      			if(parseInt(x.innerHTML) > parseInt(y.innerHTML)){
+		      		if(Number.isInteger(parseFloat(x.innerHTML))){
+		      			if(parseFloat(x.innerHTML) > parseFloat(y.innerHTML)){
 		      				shouldSwitch = true;
 		      				break;
 		      			}
@@ -326,8 +326,8 @@ $(document).ready(function(){
 				      	}
 		      		}
 		  		} else if (dir == "desc") {
-		  			if(Number.isInteger(parseInt(x.innerHTML))){
-						if(parseInt(x.innerHTML) < parseInt(y.innerHTML)){
+		  			if(Number.isInteger(parseFloat(x.innerHTML))){
+						if(parseFloat(x.innerHTML) < parseFloat(y.innerHTML)){
 		      				shouldSwitch = true;
 		      				break;
 		      			}
