@@ -72,7 +72,7 @@
 								0=>'Everything is fine!',
 								1=>'The account has been blocked: <button id="'.$account['account_id'].'" msg="1" class="unblock btn btn-danger btn-sm">What should I do?</button>',
 								2=>'Your username or password is wrong. <button id="edit" account="'.$account['account_id'].'" class="btn btn-warning btn-sm openModal">Change it!</button>',
-								3=>'Unknow error... <button id="'.$account['account_id'].'" msg="3" class="unblock btn btn-danger btn-sm">What should I do?</button>',
+								3=>'Unknown error... <button id="'.$account['account_id'].'" msg="3" class="unblock btn btn-danger btn-sm">What should I do?</button>',
 							);
 
 					$started = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=false')->fetch()['nb'];
