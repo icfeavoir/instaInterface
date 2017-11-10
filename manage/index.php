@@ -68,7 +68,12 @@
 				$accounts = $accounts->fetchAll();
 
 				foreach ($accounts as $account) {
-					$status = array('Everything is fine!', 'The account has been blocked: <button id="'.$account['account_id'].'" class="unblock btn btn-danger btn-sm">What should I do?</button>');
+					$status = array(
+								0=>'Everything is fine!',
+								1=>'The account has been blocked: <button id="'.$account['account_id'].'" msg="1" class="unblock btn btn-danger btn-sm">What should I do?</button>',
+								2=>'Your username or password is wrong. <button id="edit" account="'.$account['account_id'].'" class="btn btn-warning btn-sm openModal">Change it!</button>',
+								3=>'Unknow error... <button id="'.$account['account_id'].'" msg="3" class="unblock btn btn-danger btn-sm">What should I do?</button>',
+							);
 
 					$started = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=false')->fetch()['nb'];
 					$replied = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=true')->fetch()['nb'];
@@ -269,26 +274,38 @@ $(document).ready(function(){
 	}
 	$('.unblock').click(function(){
 		var accountID = $(this);
-		bootbox.confirm({
-		    message: "You should connect to this Instagram account, and check the <i>I'm not a robot</i> field. It it done?",
-		    backdrop: true,
-		    buttons: {
-		        confirm: {
-		            label: 'Yes',
-		            className: 'btn-success'
-		        },
-		        cancel: {
-		            label: 'No',
-		            className: 'btn-danger'
-		        }
-		    },
-		    callback: function (result) {
-		    	if(result){
-		    		$.post('action.php?action=reconnect', {'accountID': accountID.attr('id')});
-		    		accountID.parent().text('Everything is fine!');
-		    	}
-		    }
-		});
+		var msg = parseInt($(this).attr('msg'));
+		switch(msg){
+			case 1:
+				bootbox.confirm({
+				    message: "You should connect to this Instagram account, and check the <i>I'm not a robot</i> field. It it done?",
+				    backdrop: true,
+				    buttons: {
+				        confirm: {
+				            label: 'Yes',
+				            className: 'btn-success'
+				        },
+				        cancel: {
+				            label: 'No',
+				            className: 'btn-danger'
+				        }
+				    },
+				    callback: function (result) {
+				    	if(result){
+				    		$.post('action.php?action=reconnect', {'accountID': accountID.attr('id')});
+				    		accountID.parent().text('Everything is fine!');
+				    	}
+				    }
+				});
+				break;
+
+			case 3:
+				bootbox.alert({
+				    message: "Something wrong happened with your account... Try to connect on Instagram and let us know if your account is still working!",
+				    backdrop: true,
+				});
+				break;
+		}
 	});
 
 	sortTable('othersAccountsTable', 4);
