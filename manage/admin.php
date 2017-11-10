@@ -235,7 +235,6 @@ $(document).ready(function(){
 			graph.addColumn('string', 'User');
 			graph.addColumn('number', 'Conversation started');
 			graph.addColumn('number', 'Conversation with reply');
-			$('#users_stats').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
 			$.post('action.php?action=getGraphUser', {'type': $(this).attr('id')}).done(function(resp){
 				resp = JSON.parse(resp);
 				for(var i=0; i<resp.received.length; i++){
