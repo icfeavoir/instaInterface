@@ -179,7 +179,7 @@ $(document).ready(function(){
 		$.ajax({
 			type: 'POST',
 			url: file+".php",
-			data: data,
+			data: data,	
 			success: function( resp ){
 				$('.modal-title').html($(resp).filter('title').text());
 				$('.modal-body').html(resp);

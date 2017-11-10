@@ -52,6 +52,7 @@
 				<th>Conversation started</th>
 				<th>Conversation with at least 1 reply</th>
 				<th>% of reply</th>
+				<th>Graph</th>
 			</tr>
 			<?php
 				$accounts = $db->prepare('SELECT * FROM scraping2.Account WHERE instaface_id = :userID');
@@ -68,6 +69,7 @@
 							<td><?php echo $started ?></td>
 							<td><?php echo $replied ?></td>
 							<td><?php echo $started != 0 ? round($replied*100/$started, 2) : 0 ?></td>
+							<td><a href="more.php?accountID=<?php echo $account['account_id']; ?>">Graph</a></td>
 						</tr>
 					<?php
 				}

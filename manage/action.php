@@ -64,7 +64,7 @@
 			$statement->execute(array(':email'=>$_POST['email'], ':password'=>password_hash($_POST['password'], PASSWORD_DEFAULT), ':rights'=>$_POST['rights'], ':ID'=>$_GET['ID']));
 		}
 		header('Location: admin.php');
-	}else if($action == 'deleteUser'){
+	}else if($action == 'deleteUser'){	// set all acounts' instaface_id owned by this user to 0
 		if(isset($_POST['ID'])){
 			$statement = $db->prepare('DELETE FROM instagram.User WHERE instaface_id=:ID LIMIT 1');
 			$statement->execute(array(':ID'=>$_POST['ID']));
