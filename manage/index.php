@@ -278,7 +278,7 @@ $(document).ready(function(){
 		switch(msg){
 			case 1:
 				bootbox.confirm({
-				    message: "You should connect to this Instagram account, and check the <i>I'm not a robot</i> field. It it done?",
+				    message: "You should connect to this Instagram account, and check the <i>I'm not a robot</i> field. Is it done?",
 				    backdrop: true,
 				    buttons: {
 				        confirm: {
@@ -293,16 +293,32 @@ $(document).ready(function(){
 				    callback: function (result) {
 				    	if(result){
 				    		$.post('action.php?action=reconnect', {'accountID': accountID.attr('id')});
-				    		accountID.parent().text('Everything is fine!');
+				    		accountID.parent().text('Will try to reconnect');
 				    	}
 				    }
 				});
 				break;
 
 			case 3:
-				bootbox.alert({
-				    message: "Something wrong happened with your account... Try to connect on Instagram and let us know if your account is still working!",
+				bootbox.confirm({
+				    message: "You should connect to this Instagram account, and see if everything is alright (your account is not blocked). Is it done?",
 				    backdrop: true,
+				    buttons: {
+				        confirm: {
+				            label: 'Yes',
+				            className: 'btn-success'
+				        },
+				        cancel: {
+				            label: 'No',
+				            className: 'btn-danger'
+				        }
+				    },
+				    callback: function (result) {
+				    	if(result){
+				    		$.post('action.php?action=reconnect', {'accountID': accountID.attr('id')});
+				    		accountID.parent().text('Will try to reconnect');
+				    	}
+				    }
 				});
 				break;
 		}
