@@ -56,8 +56,8 @@
 			<tr>
 				<th>Username</th>
 				<th>Status</th>
-				<th>Conversation started</th>
-				<th>Conversation with at least 1 reply</th>
+				<th>Conversations started</th>
+				<th>Conversations with at least 1 reply</th>
 				<th>% of reply</th>
 				<th>Update</th>
 				<th>Delete</th>
@@ -92,8 +92,8 @@
 			<tr>
 				<th>Owner</th>
 				<th>Username</th>
-				<th>Conversation started</th>
-				<th>Conversation with at least 1 reply</th>
+				<th>Conversations started</th>
+				<th>Conversations with at least 1 reply</th>
 				<th>% of reply</th>
 			</tr>
 			<?php
@@ -204,7 +204,7 @@ $(document).ready(function(){
 		table = document.getElementById(table);
 		switching = true;
 		//Set the sorting direction to ascending:
-		dir = "asc"; 
+		dir = "desc"; 
 		/*Make a loop that will continue until
 		no switching has been done:*/
 		while (switching) {
@@ -260,8 +260,8 @@ $(document).ready(function(){
 			} else {
 				/*If no switching has been done AND the direction is "asc",
 				set the direction to "desc" and run the while loop again.*/
-				if (switchcount == 0 && dir == "asc") {
-					dir = "desc";
+				if (switchcount == 0 && dir == "desc") {
+					dir = "asc";
 					switching = true;
 	      		}
 			}
@@ -290,6 +290,8 @@ $(document).ready(function(){
 		    }
 		});
 	});
+
+	sortTable('othersAccountsTable', 4);
 
 });
 </script>

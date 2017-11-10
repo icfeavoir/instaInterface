@@ -105,8 +105,8 @@
 			<tr>
 				<th>Owner</th>
 				<th>Username</th>
-				<th>Conversation started</th>
-				<th>Conversation with at least 1 reply</th>
+				<th>Conversations started</th>
+				<th>Conversations with at least 1 reply</th>
 				<th>% of reply</th>
 			</tr>
 			<?php
@@ -171,6 +171,7 @@ $(document).ready(function(){
 	google.charts.load('current', {packages: ['corechart', 'bar']});
 	google.charts.setOnLoadCallback(function(){drawGraph()});
 	var graph, materialChart;
+	var graphShowed = 'forever';
 
 	function openModal(file, data={}, sync=true){
 		$('#modal').modal();
@@ -226,22 +227,25 @@ $(document).ready(function(){
 	});
 
 	$('.graphRadioBtn').click(function(){
-		$('#load_graph').html('Loading graph... <i class="fa fa-circle-o-notch fa-spin"></i>');
-		$('#users_stats').html('');
-		graph = new google.visualization.DataTable();
-		graph.addColumn('string', 'User');
-		graph.addColumn('number', 'Conversation started');
-		graph.addColumn('number', 'Conversation with reply');
-		// $('#users_stats').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
-		$.post('action.php?action=getGraphUser', {'type': $(this).attr('id')}).done(function(resp){
-			resp = JSON.parse(resp);
-			for(var i=0; i<resp.received.length; i++){
-				graph.addRow([resp.received[i].email, parseInt(resp.sent[i].nb), parseInt(resp.received[i].nb)]);
-			}
-			var materialChart = new google.charts.Bar(document.getElementById('users_stats'));
-			$('#load_graph').html('');
-			materialChart.draw(graph);
-		});
+		if(graphShowed != $(this).attr('id')){
+			graphShowed = $(this).attr('id');
+			$('#load_graph').html('Loading graph... <i class="fa fa-circle-o-notch fa-spin"></i>');
+			$('#users_stats').html('');
+			graph = new google.visualization.DataTable();
+			graph.addColumn('string', 'User');
+			graph.addColumn('number', 'Conversation started');
+			graph.addColumn('number', 'Conversation with reply');
+			// $('#users_stats').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
+			// $.post('action.php?action=getGraphUser', {'type': $(this).attr('id')}).done(function(resp){
+			// 	resp = JSON.parse(resp);
+			// 	for(var i=0; i<resp.received.length; i++){
+			// 		graph.addRow([resp.received[i].email, parseInt(resp.sent[i].nb), parseInt(resp.received[i].nb)]);
+			// 	}
+			// 	var materialChart = new google.charts.Bar(document.getElementById('users_stats'));
+			// 	$('#load_graph').html('');
+			// 	materialChart.draw(graph);
+			// });
+		}
 	});
 
 	function drawGraph(){
