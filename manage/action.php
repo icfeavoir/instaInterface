@@ -68,6 +68,8 @@
 		if(isset($_POST['ID'])){
 			$statement = $db->prepare('DELETE FROM instagram.User WHERE instaface_id=:ID LIMIT 1');
 			$statement->execute(array(':ID'=>$_POST['ID']));
+			$statement = $db->prepare('UPDATE scraping2.Account SET Account.instaface_id=0 WHERE Account.instaface_id=:ID');
+			$statement->execute(array(':ID'=>$_POST['ID']));
 		}
 	}else if($action == 'getTotalNumbers'){
 		$json = array();
