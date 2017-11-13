@@ -49,6 +49,22 @@
 			$statement = $db->prepare('UPDATE scraping2.Account SET status=0 WHERE account_id=:accountID');
 			$statement->execute(array(':accountID'=>$_POST['accountID']));
 		}
+	}else if($action == 'changeState'){
+		if(isset($_POST['accountID']) && isset($_POST['field']) && isset($_POST['value'])){
+			switch($_POST['field']){
+				case 'like':
+					$statement = $db->prepare('UPDATE scraping2.Account SET like = :value WHERE account_id = :id LIMIT 1');
+					break;
+				case 'follow':
+					$statement = $db->prepare('UPDATE scraping2.Account SET follow = :value WHERE account_id = :id LIMIT 1');
+					break;
+				case 'chat':
+					$statement = $db->prepare('UPDATE scraping2.Account SET send_messages = :value WHERE account_id = :id LIMIT 1');
+					break;
+			}
+			$statement->execute(array(':value'=>$_POST['value'], ':id'=>$_POST['accountID']));
+		}
+		print_r($_POST);
 	}
 
 // ADMIN

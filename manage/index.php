@@ -38,24 +38,43 @@
   			.specialLine{
   				background-color: #AEC7E8;
   			}
+  			.ajax-response{
+				position: fixed;
+				z-index: 1;
+				width: 50%;
+				border-radius: 10px;
+				left: 25%;
+				text-align: center;
+				visibility: hidden;
+				opacity: 0;
+				-webkit-transition: visibility 1s, opacity 1s;
+				transition: visibility 1s, opacity 1s;
+			}
   		</style>
     </head>
 
     <body class="text-center">
+    	<div class="ajax-response">
+    		<p class="alert"></p>
+    	</div>
+
 		<div class="alert alert-info text-center">
 			<strong>Welcome <?php echo $_SESSION['email']; ?>!</strong> Here are your accounts and some stats about it! <a href="action.php?action=logout"><button class="btn btn-warning btn-md">Logout</button></a>
 		</div>
 		<button class="btn btn-lg btn-success" id="newAccount">Add an account</button>
 		<br/><br/>
 
-		<div class="col-lg-12 toLoad" id="getTops">Loading tops... <i class="fa fa-circle-o-notch fa-spin"></i></div>
-		<br/><br/>
+		<!-- <div class="col-lg-12 toLoad" id="getTops">Loading tops... <i class="fa fa-circle-o-notch fa-spin"></i></div>
+		<br/><br/> -->
 
 		<div class="alert alert-info text-center col-lg-12">Your account(s)</div>
 		<table class="table table-striped table-hover" id="accountsTable">
 			<tr>
 				<th>Username</th>
 				<th>Status</th>
+				<th>Follow</th>
+				<th>Like</th>
+				<th>Chat</th>
 				<th>Conversations started</th>
 				<th>Conversations with at least 1 reply</th>
 				<th>% of reply</th>
@@ -81,6 +100,9 @@
 						<tr>
 							<td><?php echo $account['username'] ?></td>
 							<td><?php echo $status[$account['status']] ?></td>
+							<td><div class="checkbox"><label><input id="<?php echo $account['account_id']; ?>" type="checkbox" class="action" field="follow"></label></div></td>
+							<td><div class="checkbox"><label><input id="<?php echo $account['account_id']; ?>" type="checkbox" class="action" field="like"></label></div></td>
+							<td><div class="checkbox"><label><input id="<?php echo $account['account_id']; ?>" type="checkbox" class="action" field="chat" <?php echo $account['send_messages'] ? 'checked' : '' ?> ></label></div></td>
 							<td><?php echo $started ?></td>
 							<td><?php echo $replied ?></td>
 							<td><?php echo $started != 0 ? round($replied*100/$started, 2) : 0 ?></td>
@@ -92,7 +114,7 @@
 			?>
 		</table>
 
-		<div class="alert alert-info text-center">All accounts with conversations</div>
+		<!-- <div class="alert alert-info text-center">All accounts with conversations</div>
 		<table class="table" id="othersAccountsTable">
 			<tr>
 				<th>Owner</th>
@@ -121,7 +143,7 @@
 					<?php
 				}
 			?>
-		</table>
+		</table> -->
 
 		<!-- Modal -->
 		<div class="modal fade" id="modal" role="dialog">
@@ -153,6 +175,13 @@ $(document).ready(function(){
 			},
 			async: sync,
 		});
+	}
+
+	function showBar(isSuccess, msg){
+		$('.ajax-response').css('visibility','visible').css('opacity', 1);
+		$('.ajax-response p').html('<i class="fa fa-'+(isSuccess?"check":"exclamation-triangle")+'" aria-hidden="true"></i> '+msg);
+		$('.ajax-response p').addClass(isSuccess?'alert-success':'alert-danger').removeClass(!isSuccess?'alert-success':'alert-danger');
+		setTimeout(function(){$('.ajax-response').css('visibility','hidden').css('opacity', 0)}, 4000);
 	}
 
 	$('#newAccount').click(function(){
@@ -324,7 +353,11 @@ $(document).ready(function(){
 		}
 	});
 
-	sortTable('othersAccountsTable', 4);
+	$('.action').click(function(){
+		$.post('action.php?action=changeState', {'accountID': $(this).attr('id'), 'field': $(this).attr('field'), 'value': $(this).prop('checked')?1:0});
+		showBar(true, 'The field \"'+$(this).attr('field')+'\" has been updated');
+	});
 
+	sortTable('othersAccountsTable', 4);
 });
 </script>
