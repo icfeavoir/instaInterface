@@ -52,19 +52,28 @@
 	}else if($action == 'changeState'){
 		if(isset($_POST['accountID']) && isset($_POST['field']) && isset($_POST['value'])){
 			switch($_POST['field']){
-				case 'like':
-					$statement = $db->prepare('UPDATE scraping2.Account SET like = :value WHERE account_id = :id LIMIT 1');
-					break;
-				case 'follow':
-					$statement = $db->prepare('UPDATE scraping2.Account SET follow = :value WHERE account_id = :id LIMIT 1');
-					break;
+				// case 'like':
+				// 	if($_POST['value']){
+				// 		$statement = $db->prepare('INSERT INTO scraping2.AccountLove (account_id, category_id, probability, limit, comment_probability, comment_type) VALUES(:account_id, )');
+				// 	}else{
+				// 		$statement = $db->prepare('DELETE scraping2.AccountLove WHERE account_id=:account_id LIMIT 1');
+				// 	}
+				// 	$statement->execute(array(':account_id'=>$_POST['accountID']));
+				// 	break;
+				// case 'follow':
+				// 	if($_POST['value']){
+				// 		$statement = $db->prepare('INSERT INTO scraping2.AccountFollow (account_id, category_id) VALUES(:account_id, )');
+				// 	}else{
+				// 		$statement = $db->prepare('DELETE scraping2.AccountFollow WHERE account_id=:account_id LIMIT 1');
+				// 	}
+				// 	$statement->execute(array(':account_id'=>$_POST['accountID']));
+				// 	break;
 				case 'chat':
 					$statement = $db->prepare('UPDATE scraping2.Account SET send_messages = :value WHERE account_id = :id LIMIT 1');
+					$statement->execute(array(':value'=>$_POST['value'], ':id'=>$_POST['accountID']));
 					break;
 			}
-			$statement->execute(array(':value'=>$_POST['value'], ':id'=>$_POST['accountID']));
 		}
-		print_r($_POST);
 	}
 
 // ADMIN

@@ -65,12 +65,14 @@
 				foreach ($accounts as $account) {
 					$started = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=false')->fetch()['nb'];
 					$replied = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=true')->fetch()['nb'];
+					$follow = $db->query('SELECT COUNT(*) AS nb FROM scraping2.AccountFollow WHERE account_id='.$account['account_id'])->fetch()['nb'];
+					$like = $db->query('SELECT COUNT(*) AS nb FROM scraping2.AccountLove WHERE account_id='.$account['account_id'])->fetch()['nb'];
 					?>
 						<tr class="<?php echo $account['instaface_id'] == $_SESSION['ID'] ? 'specialLine' : '' ?>">
 							<td><?php echo $account['instaface_id'] == $_SESSION['ID'] ? 'You' : $db->query('SELECT email FROM instagram.User WHERE instaface_id='.$account['instaface_id'])->fetch()['email']; ?></td>
 							<td><?php echo $account['username'] ?></td>
-							<td><div class="checkbox"><label><input id="<?php echo $account['account_id']; ?>" type="checkbox" class="action" field="follow"></label></div></td>
-							<td><div class="checkbox"><label><input id="<?php echo $account['account_id']; ?>" type="checkbox" class="action" field="like"></label></div></td>
+							<td><div class="checkbox"><label><input id="<?php echo $account['account_id']; ?>" type="checkbox" class="action" field="follow" <?php echo $follow ? 'checked' : '' ?> ></label></div></td>
+							<td><div class="checkbox"><label><input id="<?php echo $account['account_id']; ?>" type="checkbox" class="action" field="like" <?php echo $like ? 'checked' : '' ?> ></label></div></td>
 							<td><div class="checkbox"><label><input id="<?php echo $account['account_id']; ?>" type="checkbox" class="action" field="chat" <?php echo $account['send_messages'] ? 'checked' : '' ?> ></label></div></td>
 							<td><?php echo $started ?></td>
 							<td><?php echo $replied ?></td>
