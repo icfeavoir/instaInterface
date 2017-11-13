@@ -49,6 +49,9 @@
 			<tr>
 				<th>Owner</th>
 				<th>Username</th>
+				<th>Follow</th>
+				<th>Like</th>
+				<th>Chat</th>
 				<th>Conversation started</th>
 				<th>Conversation with at least 1 reply</th>
 				<th>% of reply</th>
@@ -66,6 +69,9 @@
 						<tr class="<?php echo $account['instaface_id'] == $_SESSION['ID'] ? 'specialLine' : '' ?>">
 							<td><?php echo $account['instaface_id'] == $_SESSION['ID'] ? 'You' : $db->query('SELECT email FROM instagram.User WHERE instaface_id='.$account['instaface_id'])->fetch()['email']; ?></td>
 							<td><?php echo $account['username'] ?></td>
+							<td><div class="checkbox"><label><input id="<?php echo $account['account_id']; ?>" type="checkbox" class="action" field="follow"></label></div></td>
+							<td><div class="checkbox"><label><input id="<?php echo $account['account_id']; ?>" type="checkbox" class="action" field="like"></label></div></td>
+							<td><div class="checkbox"><label><input id="<?php echo $account['account_id']; ?>" type="checkbox" class="action" field="chat" <?php echo $account['send_messages'] ? 'checked' : '' ?> ></label></div></td>
 							<td><?php echo $started ?></td>
 							<td><?php echo $replied ?></td>
 							<td><?php echo $started != 0 ? round($replied*100/$started, 2) : 0 ?></td>
@@ -170,11 +176,8 @@ $(document).ready(function(){
 		}
 	}
 
-	$('#unblock').click(function(){
-		bootbox.alert({
-		    message: "The account's owner should connect to this Instagram account, and check the <i>I'm not a robot</i> field.",
-		    backdrop: true
-		});
-	})
+	$('.action').click(function(){
+		$.post('action.php?action=changeState', {'accountID': $(this).attr('id'), 'field': $(this).attr('field'), 'value': $(this).prop('checked')?1:0});
+	});
 });
 </script>

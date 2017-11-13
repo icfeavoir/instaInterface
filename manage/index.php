@@ -64,8 +64,8 @@
 		<button class="btn btn-lg btn-success" id="newAccount">Add an account</button>
 		<br/><br/>
 
-		<!-- <div class="col-lg-12 toLoad" id="getTops">Loading tops... <i class="fa fa-circle-o-notch fa-spin"></i></div>
-		<br/><br/> -->
+		<div class="col-lg-12 toLoad" id="getTops">Loading tops... <i class="fa fa-circle-o-notch fa-spin"></i></div>
+		<br/><br/>
 
 		<div class="alert alert-info text-center col-lg-12">Your account(s)</div>
 		<table class="table table-striped table-hover" id="accountsTable">
@@ -114,7 +114,7 @@
 			?>
 		</table>
 
-		<!-- <div class="alert alert-info text-center">All accounts with conversations</div>
+		<div class="alert alert-info text-center">All accounts with conversations</div>
 		<table class="table" id="othersAccountsTable">
 			<tr>
 				<th>Owner</th>
@@ -143,7 +143,7 @@
 					<?php
 				}
 			?>
-		</table> -->
+		</table>
 
 		<!-- Modal -->
 		<div class="modal fade" id="modal" role="dialog">
