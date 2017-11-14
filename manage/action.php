@@ -2,8 +2,10 @@
 	session_start();
 	require_once('../db.php');
 
-	if(empty($_SESSION))
+	if(empty($_SESSION) && !isset($_POST['curl']))
 		exit('Not connected');
+	if(isset($_POST['curl']) && $_POST['curl'] == 'mailTops')
+		$_SESSION['ID'] = -1;
 	if(!isset($_GET['action']))
 		exit('No action');
 
