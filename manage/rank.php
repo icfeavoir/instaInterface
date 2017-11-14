@@ -2,7 +2,7 @@
 	session_start();
 	require_once('../db.php');
 
-	if(empty($_SESSION)){
+	if(empty($_SESSION) && !isset($_POST['curl'])){
 		$accounts = $db->prepare('SELECT * FROM instagram.User WHERE instaface_id=:instaface_id');
 		$accounts->execute(array(':instaface_id'=>$_COOKIE['ID']));
 		$accounts = $accounts->fetchAll(PDO::FETCH_ASSOC);
@@ -10,8 +10,11 @@
 			$_SESSION[$key] = $value;
 		}
 	}
-	if(!isset($_SESSION['ID']) || $_SESSION['ID'] == 0)
+	if((!isset($_SESSION['ID']) || $_SESSION['ID'] == 0) && $_POST['curl'] != 'mailTops')	// no security to get tops for mail
 		header('Location: '.PATH.'index.php');
+
+	if($_POST['curl'])
+		$_SESSION['ID'] = -1;
 
 ?>
 <!DOCTYPE html>
