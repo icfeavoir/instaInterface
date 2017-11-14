@@ -49,6 +49,7 @@
 			<tr>
 				<th>Owner</th>
 				<th>Username</th>
+				<th>Status</th>
 				<!-- <th>Follow</th>
 				<th>Like</th> -->
 				<th>Chat</th>
@@ -62,6 +63,13 @@
 				$accounts->execute(array(':userID'=>$_POST['userID']));
 				$accounts = $accounts->fetchAll();
 
+				$status = array(
+								0=>'Everything is fine!',
+								1=>'The account has been blocked',
+								2=>'Wrong username of password',
+								3=>'Unknown error...',
+							);
+
 				foreach ($accounts as $account) {
 					$started = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=false')->fetch()['nb'];
 					$replied = $db->query('SELECT COUNT(DISTINCT thread_id) as nb FROM scraping2.ThreadItem WHERE thread_id IN (SELECT thread_id FROM scraping2.Thread WHERE account_id='.$account['account_id'].') AND response=true')->fetch()['nb'];
@@ -71,6 +79,7 @@
 						<tr class="<?php echo $account['instaface_id'] == $_SESSION['ID'] ? 'specialLine' : '' ?>">
 							<td><?php echo $account['instaface_id'] == $_SESSION['ID'] ? 'You' : $db->query('SELECT email FROM instagram.User WHERE instaface_id='.$account['instaface_id'])->fetch()['email']; ?></td>
 							<td><?php echo $account['username'] ?></td>
+							<td><?php echo $status[$account['status']]; ?></td>
 							<!-- <td><div class="checkbox"><label><input id="<?php echo $account['account_id']; ?>" type="checkbox" class="action" field="follow" <?php echo $follow ? 'checked' : '' ?> ></label></div></td>
 							<td><div class="checkbox"><label><input id="<?php echo $account['account_id']; ?>" type="checkbox" class="action" field="like" <?php echo $like ? 'checked' : '' ?> ></label></div></td> -->
 							<td><div class="checkbox"><label><input id="<?php echo $account['account_id']; ?>" type="checkbox" class="action" field="chat" <?php echo $account['send_messages'] ? 'checked' : '' ?> ></label></div></td>
