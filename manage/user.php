@@ -66,7 +66,7 @@
 				$status = array(
 								0=>'Everything is fine!',
 								1=>'The account has been blocked',
-								2=>'Wrong username of password',
+								2=>'Wrong username or password',
 								3=>'Unknown error...',
 							);
 
